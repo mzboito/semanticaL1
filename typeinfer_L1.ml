@@ -33,6 +33,12 @@ type t =
 
 exception InvalidType ;;
 
+(* Atualizar o ambiente *) 
+
+let update variable value environment : env = match environment with
+		|[] -> [(variable, value)]
+		| hd::tl -> List.append [(variable, value)] environment
+		
 let rec typecheck t = match t with
 	  TmInt -> TyInt (* T-Int *)
 	| TmBool -> TyBool (* T-Bool *)
