@@ -36,9 +36,19 @@ exception InvalidType ;;
 (* Atualizar o ambiente *) 
 
 let update variable value environment : env = match environment with
-		|[] -> [(variable, value)]
-		| hd::tl -> List.append [(variable, value)] environment
+	|[] -> [(variable, value)]
+	| hd::tl -> List.append [(variable, value)] environment
 		
+(* procurar a variavel no ambiente *)
+
+let rec lookup variable environment : value = match environment with
+	| [] -> raise Not_found
+	| (name, v)::tl ->
+		if (name = variable)   (* achou a variavel no ambiente*)
+			then v		(*retorna o valor dela*)
+		else lookup variable tl
+			
+			
 let rec typecheck t = match t with
 	  TmInt -> TyInt (* T-Int *)
 	| TmBool -> TyBool (* T-Bool *)
