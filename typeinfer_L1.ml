@@ -51,11 +51,28 @@ let rec lookup variable environment : value = match environment with
 		else lookup variable tl
 			
 			
-let rec typecheck environment exp : tipo = match exp with
-
-( *
-	  TmInt -> TyInt (* T-Int *)
+let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente, uma expressao e retorna um tipo*)
+	
+	(* se é exp é um valor *) 
+	Num(exp) -> TyInt
+	| Bool(exp) -> TyBool
+	  
+	  (* se exp é uma operacao *) 
+	  Bop(op,e1,e2) ->
+	  	let exp1 = typecheck environment e1
+		lete xp2 = typecheck environment e2
+		(match op, exp1, exp2 with 
+		
+			| Sum, TyInt, TyInt -> TyInt
+			| Diff, TyInt, TyInt -> TyInt
+			| Mult, TyInt, TyInt -> TyInt
+			| Div, TyInt, TyInt -> TyInt
+			| Eq, TyInt, TyInt -> TyBool
+			| Leq, TyInt, TyInt -> TyBool
+	  
+	(**  TmInt -> TyInt (* T-Int *)
 	| TmBool -> TyBool (* T-Bool *)
+	
 	| TmOpSum(t1,t2) -> (* Pode isso????? *)
 		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) + typecheck(t2)) == TyInt else raise InvalidType (* T-Op+ *)
 	| TmOpDiff(t1,t2) -> 
@@ -82,4 +99,4 @@ let rec typecheck environment exp : tipo = match exp with
 	| (* T-Fun *)
 	| (* T-App *)
 	| (* T-Let *)
-	| (* T-LetRec *) ;; *)
+	| (* T-LetRec *) ;; **)
