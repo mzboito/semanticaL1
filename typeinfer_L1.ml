@@ -51,7 +51,9 @@ let rec lookup variable environment : value = match environment with
 		else lookup variable tl
 			
 			
-let rec typecheck t = match t with
+let rec typecheck environment exp : tipo = match exp with
+
+( *
 	  TmInt -> TyInt (* T-Int *)
 	| TmBool -> TyBool (* T-Bool *)
 	| TmOpSum(t1,t2) -> (* Pode isso????? *)
@@ -80,4 +82,4 @@ let rec typecheck t = match t with
 	| (* T-Fun *)
 	| (* T-App *)
 	| (* T-Let *)
-	| (* T-LetRec *) ;;
+	| (* T-LetRec *) ;; *)
