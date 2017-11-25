@@ -76,7 +76,7 @@ let rec typecheck t = match t with
 	 	if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) != typecheck(t2)) == TyBool else raise InvalidType (* TOp!= *)
 	| TmIf(t1,t2,t3) -> 
 		if(typecheck(t1)) == TyBool && (typecheck(t2)) == (typecheck(t3)) then typecheck(t3) else raise InvalidType (* T-If *)
-	| TmVar -> lookup variable environment (* isso retorna um valor, é só isso??)
+	| TmVar(variable) -> lookup variable environment (* isso retorna um valor, é só isso??)
 	| (* T-Fun *)
 	| (* T-App *)
 	| (* T-Let *)
