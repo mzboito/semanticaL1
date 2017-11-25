@@ -11,7 +11,8 @@ type expr = Num of int
           | If of expr * expr * expr 
           | Var of variable 
           | App of expr * expr 
-          | Lam of variable * tipo * expr 
+	  | Fun of variable * tipo * expr
+          (* | Lam of variable * tipo * expr  *)  
           | Let of variable * tipo * expr * expr
           | Lrec of variable * tipo * tipo * variable * tipo * expr * expr
 
@@ -29,7 +30,8 @@ exception Eval_Error of string
 type t = 
 	  TyBool 
 	| TyNat 
-	| TyInt ;;
+	| TyInt 
+	| TyFn of tipo * tipo;; (* acho que tem que estar aqui *)
 
 exception InvalidType ;;
 
