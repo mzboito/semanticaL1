@@ -60,7 +60,7 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 	  (* se exp é uma operacao *) 
 	  Bop(op,e1,e2) ->
 	  	let exp1 = typecheck environment e1
-		lete xp2 = typecheck environment e2
+		let exp2 = typecheck environment e2
 		(match op, exp1, exp2 with 
 		
 			| Sum, TyInt, TyInt -> TyInt
