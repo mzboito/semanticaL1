@@ -9,6 +9,7 @@ type expr = Num of int
           | Bool of bool 
           | Bop of operator * expr * expr
           | If of expr * expr * expr 
+	  | Not of expr
           | Var of variable 
           | App of expr * expr 
 	  | Fun of variable * tipo * expr
@@ -58,10 +59,10 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 	| Bool(exp) -> TyBool
 	  
 	  (* se exp é uma operacao *) 
-	  Bop(op,e1,e2) ->
-	  	let exp1 = typecheck environment e1
-		let exp2 = typecheck environment e2
-		(match op, exp1, exp2 with 
+	|  Bop(op,exp1,exp2) ->
+	  	let ope1 = typecheck environment exp1
+		let ope2 = typecheck environment exp2
+		(match op, ope1, ope2 with 
 		
 			| Sum, TyInt, TyInt -> TyInt
 			| Diff, TyInt, TyInt -> TyInt
@@ -69,7 +70,27 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 			| Div, TyInt, TyInt -> TyInt
 			| Eq, TyInt, TyInt -> TyBool
 			| Leq, TyInt, TyInt -> TyBool
-	  
+			| _ -> raise InvalidType
+		)
+			
+	| Not(exp) ->
+		let note1 = typecheck environment exp
+		(match note1 with
+			TyBool -> TyBool
+			| _ -> raise InvalidType
+	  	)
+		
+	| Var(variable) -> lookup variable environment (* isso retorna um valor, é só isso??*)
+	
+
+	| App(exp1,exp2) ->
+		let appe1 = typecheck environment exp1
+		let appe2 = typecheck environment exp2
+		(* ..... *) 
+		
+		
+		
+	
 	(**  TmInt -> TyInt (* T-Int *)
 	| TmBool -> TyBool (* T-Bool *)
 	
