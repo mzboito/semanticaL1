@@ -60,11 +60,11 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 	  
 	  (* se exp é uma operacao *) 
 	|  Bop(op,exp1,exp2) ->
-	  	let ope1 = typecheck environment exp1
-		let ope2 = typecheck environment exp2
+	  	let ope1 = typecheck environment exp1  (* Verificar exp1 *)
+		let ope2 = typecheck environment exp2  (* Verificar exp2 *)
 		(match op, ope1, ope2 with 
 		
-			| Sum, TyInt, TyInt -> TyInt
+			| Sum, TyInt, TyInt -> TyInt      
 			| Diff, TyInt, TyInt -> TyInt
 			| Mult, TyInt, TyInt -> TyInt
 			| Div, TyInt, TyInt -> TyInt
@@ -73,22 +73,38 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 			| _ -> raise InvalidType
 		)
 			
-	| Not(exp) ->
+	| Not(exp) ->   (* exp deve ser do tipo bool *) 
 		let note1 = typecheck environment exp
 		(match note1 with
 			TyBool -> TyBool
 			| _ -> raise InvalidType
 	  	)
 		
-	| Var(variable) -> lookup variable environment (* isso retorna um valor, é só isso??*)
+	| Var(variable) -> typecheck environment (lookup variable environment) (* lookup retorna um valor, ver o tipo desse valor*)
 	
 
 	| App(exp1,exp2) ->
-		let appe1 = typecheck environment exp1
-		let appe2 = typecheck environment exp2
+		let appexp1 = typecheck environment exp1
+		let appexp2 = typecheck environment exp2
+		(match appe1 with
+			TyFn(tipo1,tipo2) -> if tipo2 = appexp1 then tipo2 else raise InvalidType
+			| _ -> raise InvalidType
+		(*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
+		)
+		
+		;;
+		
 		(* ..... *) 
 		
+(* TESTES PARA ENV *)
 		
+let umNum =  Vnum (7);; 
+let umEnv : env = []
+
+(* variaveis sao strings *)
+
+let up = update "umNum" umNum umEnv;;
+let search = lookup "umNum" umEnv;;
 		
 	
 	(**  TmInt -> TyInt (* T-Int *)
@@ -120,4 +136,5 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 	| (* T-Fun *)
 	| (* T-App *)
 	| (* T-Let *)
-	| (* T-LetRec *) ;; **)
+	| (* T-LetRec *) ;; *)
+
