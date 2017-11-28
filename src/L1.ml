@@ -5,6 +5,22 @@
 #use "typeinfer_L1.ml" ;;
 
 
+
+(* NAO FUNCIONA, SO IGNOREM
+let t1 = TyInt;;
+let t2 = TyBool;;
+let t3 = TyFn(t1, t2);;
+let t4 = TyFn(t3,t2);;
+let t5 = TyFn(t2,t2);;
+let evalList = t1:: (t2:: (t3:: (t4:: (t5 :: [])))) ;;
+let output = List.map (fun x -> type2string(x)) evalList ;;
+
+let printOutput elem =
+    match elem with
+     _ -> Printf.printf "Result: %s\n" elem
+    in List.iter printOutput output ;;
+*)
+
 (*  TESTAR PROGRAMAS AQUI *)
 
 (* TESTES PARA ENV *)
@@ -50,24 +66,3 @@ let search = lookup "umNum" umEnv;;*)
 	(*|  T-App *)
 	(*|  T-Let *)
 	(*|  T-LetRec *)
-
-
-
-(*let t1 = ;;
-let t2 = ;;
-let t3 = ;;
-let t4 = ;;
-let t5 = ;;
-
-let evalList = t1:: (t2:: (t3:: (t4:: (t5 :: [])))) ;;
-let output = List.map (fun x -> typecheck(x)) evalList ;;*)
-
-(* tirei da minha implementação de L0, tem que adaptar
-let printOutput elem =
-    match elem with
-      TmZero -> Printf.printf "Result: Value (TmZero)\n"
-      | TmTrue -> Printf.printf "Result: Value (TmTrue)\n"
-      | TmFalse -> Printf.printf "Result: Value (TmFalse)\n"
-      | _ -> Printf.printf "Result: Error\n"
-    in List.iter printOutput output ;;
-*)

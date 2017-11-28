@@ -1,3 +1,4 @@
+#use "term_L1.ml" ;;
 
 (* Size function for lists *)
 let rec size x = match x with
@@ -5,11 +6,11 @@ let rec size x = match x with
    | _::tail_x -> 1 + (size tail_x) ;;
 
 (* Function to transform term in string *)
-(*let rec type2string t = match t with
+let rec type2string t = match t with
     TyInt -> "int"
     | TyBool -> "bool"
     | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "TyFn("^t1'^"->"^t2'^")" ;;
-*)
+
 
 
   (*
