@@ -83,9 +83,6 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 	*)
 	
 	| If(e1,e2,e3) ->
-		let tipoe1 = typecheck environment e1
-		let tipoe2 = typecheck environment e2
-		let tipoe3 = typecheck environment e3
 		if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
 		
