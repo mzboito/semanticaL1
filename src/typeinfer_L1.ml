@@ -4,7 +4,7 @@
 exception InvalidType ;;
 
 (* Atualizar o ambiente *)
-(*let update variable value environment : env = match environment with
+let update variable value environment : env = match environment with
 	|[] -> [(variable, value)]
 	| hd::tl -> List.append [(variable, value)] environment
 
@@ -14,65 +14,46 @@ let rec lookup variable environment = match environment with
 	| (name, v)::tl ->
 		if (name = variable)   (* achou a variavel no ambiente*)
 			then v		(*retorna o valor dela*)
-		else lookup variable tl*)
+		else lookup variable tl
 
 
-let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente, uma expressao e retorna um tipo*)
-
+(* recebe um anbiente, uma expressao e retorna um tipo*)
+let rec typecheck environment exp : tipo = match exp with
 	(* se é exp é um valor *)
-		Num(exp) -> TyInt
-		| Bool(exp) -> TyBool
-		| Bop(op,exp1,exp2) -> raise InvalidType
-
-	  (* se exp é uma operacao *)
-		(*| Bop(op,exp1,exp2) ->
-	  	let ope1 = typecheck environment exp1  (* Verificar exp1 *)
-		let ope2 = typecheck environment exp2  (* Verificar exp2 *)
+	Num(exp) -> TyInt
+	| Bool(exp) -> TyBool
+  (* se exp é uma operacao *)
+	| Bop(op,exp1,exp2) ->
+  	let ope1 = typecheck environment exp1 in (* Verificar exp1 *)
+		let ope2 = typecheck environment exp2 in (* Verificar exp2 *)
 		(match op, ope1, ope2 with
-
 			| Sum, TyInt, TyInt -> TyInt
 			| Diff, TyInt, TyInt -> TyInt
 			| Mult, TyInt, TyInt -> TyInt
 			| Div, TyInt, TyInt -> TyInt
 			| Eq, TyInt, TyInt -> TyBool
 			| Leq, TyInt, TyInt -> TyBool
-			| _ -> raise InvalidType
-		)*)
-		| _ -> TyFn(TyInt,TyBool) ;; (*so pra ir debugando sem ele reclamar de falta de match*)
-
-	(* IF e1 then e2 else e3
-	e1: bool
-	e2: T
-	e3:T
-	if then else: T
-
-
-	*)
-
-	(*	| If(e1,e2,e3) ->
+			| _ -> raise InvalidType)
+(* IF e1 then e2 else e3
+e1: bool	e2: T	e3:T	if then else: T*)
+	| If(e1,e2,e3) ->
+		let tipoe1 = typecheck environment e1 in
+		let tipoe2 = typecheck environment e2 in
+		let tipoe3 = typecheck environment e3 in
 		if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
-
-	| Not(exp) ->   (* exp deve ser do tipo bool *)
-		let note1 = typecheck environment exp
-		(match note1 with
-			TyBool -> TyBool
-			| _ -> raise InvalidType
-	  	)
-
-	| Var(variable) -> typecheck environment (lookup variable environment) *)(* lookup retorna um valor, ver o tipo desse valor*)
-
+	| Var(variable) -> typecheck environment (lookup variable environment)
+	(* lookup retorna um valor, ver o tipo desse valor*)
 
 (*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
-	(*	| App(exp1,exp2) ->
-		let appexp1 = typecheck environment exp1
-		let appexp2 = typecheck environment exp2
+	| App(exp1,exp2) ->
+		let appexp1 = typecheck environment exp1 in
+		let appexp2 = typecheck environment exp2 in
 		(match appe1 with
 			TyFn(tipo1,tipo2) -> if tipo2 == appexp1 then tipo2 else raise InvalidType
-			| _ -> raise InvalidType
+			| _ -> raise InvalidType)
 
-		) *)
-
+	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
 	(* Fn: variavel, tipo, expressao
 		num env onde a variavel é do tipo t, a expressao é do tipo t', então
