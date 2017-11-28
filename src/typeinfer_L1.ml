@@ -12,7 +12,7 @@ let update variable value environment : env = match environment with
 let rec lookup variable environment = match environment with
 	| [] -> raise Not_found
 	| (name, v)::tl ->
-		if (name = variable)   (* achou a variavel no ambiente*)
+		if (name == variable)   (* achou a variavel no ambiente*)
 			then v		(*retorna o valor dela*)
 		else lookup variable tl
 
@@ -49,7 +49,7 @@ e1: bool	e2: T	e3:T	if then else: T*)
 	| App(exp1,exp2) ->
 		let appexp1 = typecheck environment exp1 in
 		let appexp2 = typecheck environment exp2 in
-		(match appe1 with
+		(match appexp1 with
 			TyFn(tipo1,tipo2) -> if tipo2 == appexp1 then tipo2 else raise InvalidType
 			| _ -> raise InvalidType)
 
