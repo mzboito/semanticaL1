@@ -73,6 +73,22 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 			| _ -> raise InvalidType
 		)
 			
+	(* IF e1 then e2 else e3
+	e1: bool
+	e2: T
+	e3:T
+	if then else: T
+	
+	
+	*)
+	
+	| If(e1,e2,e3) ->
+		let tipoe1 = typecheck environment e1
+		let tipoe2 = typecheck environment e2
+		let tipoe3 = typecheck environment e3
+		if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
+
+		
 	| Not(exp) ->   (* exp deve ser do tipo bool *) 
 		let note1 = typecheck environment exp
 		(match note1 with
@@ -88,7 +104,7 @@ let rec typecheck environment exp : tipo = match exp with  (* recebe um anbiente
 		let appexp1 = typecheck environment exp1
 		let appexp2 = typecheck environment exp2
 		(match appe1 with
-			TyFn(tipo1,tipo2) -> if tipo2 = appexp1 then tipo2 else raise InvalidType
+			TyFn(tipo1,tipo2) -> if tipo2 == appexp1 then tipo2 else raise InvalidType
 			| _ -> raise InvalidType
 			
 		)
