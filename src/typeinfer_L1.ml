@@ -55,7 +55,24 @@ e1: bool	e2: T	e3:T	if then else: T*)
 
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
-	(* Fn: variavel, tipo, expressao
+	(* 
+	NOVA APP **************************
+	
+	| App(exp1,exp2) ->
+		let appexp1 = typecheck environment exp1 in   (* tem que ser t->t' *)
+		let appexp2 = typecheck environment exp2 in    (* tem que ser t *)
+		
+		(match appexp1 with
+			TyFn(TyInt,TyInt) -> if appexp2 == TyInt then TyInt else raise InvalidType
+			| TyFn(TyInt,TyBool) -> if appexp2 == TyInt then TyBool else raise InvalidType
+			| TyFn(TyBool,TyInt) -> if appexp2 == TyBool then TyInt else raise InvalidType
+			| TyFn(TyBool,TyBool) -> if appexp2 == TyBool then TyBool else raise InvalidType
+			| _ -> raise InvalidType)
+	
+	****** PORÉM NAO DA CASO O TIPO SEJA TyFn DE NOVO
+	
+	
+	Fn: variavel, tipo, expressao
 		num env onde a variavel é do tipo t, a expressao é do tipo t', então
 		a funcao é do tipo t -> t'
 
