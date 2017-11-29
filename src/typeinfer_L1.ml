@@ -46,6 +46,10 @@ e1: bool	e2: T	e3:T	if then else: T*)
 	(* lookup retorna um valor, ver o tipo desse valor*)
 
 	(*ADICIONAR O FUN AQUI *)
+	| Fun(variable, t, exp) ->
+		let tipoExp =  typecheck environment exp in
+		let tipoVar = typecheck environment (lookup variable environment) in
+		if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
 
 (*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
 	| App(exp1,exp2) ->
