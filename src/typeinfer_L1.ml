@@ -58,7 +58,11 @@ e1: bool	e2: T	e3:T	if then else: T*)
 
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
-	(*
+	(*ADICIONAR LET AQUI*)
+
+	(*ADICIONAR LET REC AQUI*)
+
+	(* OLD VERSION
 	Fn: variavel, tipo, expressao
 		num env onde a variavel é do tipo t, a expressao é do tipo t', então
 		a funcao é do tipo t -> t'
