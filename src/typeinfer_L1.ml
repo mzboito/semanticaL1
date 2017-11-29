@@ -59,10 +59,17 @@ e1: bool	e2: T	e3:T	if then else: T*)
 			TyFn(tipo1,tipo2) -> if tipo1 == appexp2 then tipo2 else raise InvalidType
 			| _ -> raise InvalidType)
 
-
+	(*ADICIONAR LET AQUI*)
+    	| Let(variable,t,exp1,exp2) ->
+		let tipovar = typecheck environment (lookup variable environment) in
+		let tipoexp1 = typecheck environment exp1 in
+		let tipoexp2 = typecheck environment exp2 in
+		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
+		
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
-	(*ADICIONAR LET AQUI*)
+	
+
 
 	(*ADICIONAR LET REC AQUI*)
 
