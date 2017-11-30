@@ -11,8 +11,19 @@ let rec type2string t = match t with
     | TyBool -> "bool"
     | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "TyFn("^t1'^"->"^t2'^")" ;;
 
+(* Function to update environment *)
+let update variable value environment : env = match environment with
+  | [] -> [(variable, value)]
+  | hd::tl -> List.append [(variable, value)] environment
 
-
+(* Function to look up for variable in environment *)
+let rec lookup variable environment : value = match environment with
+  | [] -> raise Not_found
+  | (name, v)::tl ->
+    if (name = variable)    (* Found the variable in the head *)
+    then v                  (* Returns variable value *)
+    else lookup variable tl (* Look for it in the tale *)
+    
   (*
   let rec generateString elem =
       match elem with
