@@ -5,4 +5,4 @@ Repositório para o trabalho final do curso de Semântica Formal - UFRGS.
 Alunas:
 * Lisiane Aguiar
 * Marcely Zanon Boito
-* Victoria ELizabetha Alves
+* Victoria Elizabetha Alves
