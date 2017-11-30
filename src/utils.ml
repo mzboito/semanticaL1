@@ -1,5 +1,7 @@
 #use "term_L1.ml" ;;
 
+exception Variable_not_found ;;
+
 (* Size function for lists *)
 let rec size x = match x with
      [] -> 0
@@ -14,26 +16,12 @@ let rec type2string t = match t with
 (* Function to update environment *)
 let update variable value environment : env = match environment with
   | [] -> [(variable, value)]
-  | hd::tl -> List.append [(variable, value)] environment
+  | hd::tl -> List.append [(variable, value)] environment ;;
 
 (* Function to look up for variable in environment *)
 let rec lookup variable environment : value = match environment with
-  | [] -> raise Not_found
+  | [] -> raise Variable_not_found
   | (name, v)::tl ->
-    if (name = variable)    (* Found the variable in the head *)
+    if (name == variable)    (* Found the variable in the head *)
     then v                  (* Returns variable value *)
-    else lookup variable tl (* Look for it in the tale *)
-
-  (*
-  let rec generateString elem =
-      match elem with
-        TmZero -> "0"
-        | TmTrue -> "True"
-        | TmFalse -> "False"
-        | TmIsZero (t1) -> let t1' = generateString(t1) in "IsZero (" ^ t1' ^ ")"
-        | TmSucc (t1) -> let t1' = generateString(t1) in "TmSucc (" ^ t1' ^ ")"
-        | TmPred (t1) -> let t1' = generateString(t1) in "TmPred (" ^ t1' ^ ")"
-        | TmIf (t1,t2,t3) -> let t1' = generateString(t1) in
-                              let t2' = generateString(t2) in
-                              let t3' = generateString(t3)
-                              in "TmIf (" ^ t1' ^","^ t2' ^","^ t3' ^")" ;;*)
+    else lookup variable tl ;; (* Look for it in the tale *)
