@@ -29,28 +29,27 @@ let rec typecheck environment exp : tipo = match exp with
 				| Greater, TyInt, TyInt -> TyBool
 				| _ -> raise InvalidType
 			)
-		(* IF e1 then e2 else e3
-			e1: bool	e2: T	e3:T	if then else: T*)
-		| If(e1,e2,e3) ->
-			let tipoe1 = typecheck environment e1 in
-			let tipoe2 = typecheck environment e2 in
-			let tipoe3 = typecheck environment e3 in
-				if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
-		| Fun(variable, t, exp) ->
-			let tipoExp =  typecheck environment exp in
-			let tipoVar = typecheck environment (lookup variable environment) in
-			if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
 (* From this point, things need to be tested *)
 
-(*
-| Var(variable) -> typecheck environment (lookup variable environment) *)
-(* lookup retorna um valor, ver o tipo desse valor*)
+(* IF e1 then e2 else e3
+e1: bool	e2: T	e3:T	if then else: T*)
+	| If(e1,e2,e3) ->
+		let tipoe1 = typecheck environment e1 in
+		let tipoe2 = typecheck environment e2 in
+		let tipoe3 = typecheck environment e3 in
+		if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
+
+	| Var(variable) -> typecheck environment (lookup variable environment)
+	(* lookup retorna um valor, ver o tipo desse valor*)
 
 	(*ADICIONAR O FUN AQUI *)
+	| Fun(variable, t, exp) ->
+		let tipoExp =  typecheck environment exp in
+		let tipoVar = typecheck environment (lookup variable environment) in
+		if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
 
-(*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
-(*
+(*  se num env, e1 Ã© t -> t'   e e2 Ã© t  , e1 e2 Ã© t'  TyFn of tipo * tipo  *)
 	| App(exp1,exp2) ->
 		let appexp1 = typecheck environment exp1 in (* tem que ser t->t' *)
 		let appexp2 = typecheck environment exp2 in (* tem que ser t *)
@@ -64,7 +63,7 @@ let rec typecheck environment exp : tipo = match exp with
 		let tipoexp1 = typecheck environment exp1 in
 		let tipoexp2 = typecheck environment exp2 in
 		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
-*)
+
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
 
