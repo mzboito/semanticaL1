@@ -5,8 +5,8 @@ exception InvalidType ;;
 
 let rec typecheck environment exp : tipo = match exp with
 	(* If expression is a value *)
-	  Num(exp)  -> TyInt
-	| Bool(exp) -> TyBool
+	  Num(v)  -> TyInt
+	| Bool(v) -> TyBool
 
 	(* Binary operations *)
 	| Bop(op,exp1,exp2) ->
@@ -37,13 +37,13 @@ let rec typecheck environment exp : tipo = match exp with
 			let tipoe3 = typecheck environment e3 in
 				if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
-		| Fun(variable, t, exp) ->
-			let tipoExp =  typecheck environment exp in
-			let tipoVar = typecheck environment (lookup variable environment) in
-			if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
 (* From this point, things need to be tested *)
 
 (*
+| Fun(variable, t, exp) ->
+let tipoExp =  typecheck environment exp in
+let tipoVar = typecheck environment (lookup variable environment) in
+if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
 | Var(variable) -> typecheck environment (lookup variable environment) *)
 (* lookup retorna um valor, ver o tipo desse valor*)
 
