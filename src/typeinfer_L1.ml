@@ -1,39 +1,37 @@
-#use "term_L1.ml" ;;
-
+#use "term_L1.ml" 
+#use "utils.ml" ;;
 
 exception InvalidType ;;
 
-(* Atualizar o ambiente *)
-let update variable value environment : env = match environment with
-	|[] -> [(variable, value)]
-	| hd::tl -> List.append [(variable, value)] environment
-
-(* procurar a variavel no ambiente *)
-let rec lookup variable environment = match environment with
-	| [] -> raise Not_found
-	| (name, v)::tl ->
-		if (name == variable)   (* achou a variavel no ambiente*)
-			then v		(*retorna o valor dela*)
-		else lookup variable tl
-
-
-(* recebe um anbiente, uma expressao e retorna um tipo*)
-let rec typecheck environment exp : tipo = match exp with
-	(* se é exp é um valor *)
-	Num(exp) -> TyInt
+let rec typecheck environment exp : tipo = match exp with 
+	(* If expression is a value *)
+	  Num(exp)  -> TyInt
 	| Bool(exp) -> TyBool
-  (* se exp é uma operacao *)
+
+	(* Binary operations *)
 	| Bop(op,exp1,exp2) ->
-  	let ope1 = typecheck environment exp1 in (* Verificar exp1 *)
-		let ope2 = typecheck environment exp2 in (* Verificar exp2 *)
+		let op1 = typecheck environment exp1 in 
+		let op2 = typecheck environment exp2 in 
 		(match op, ope1, ope2 with
-			| Sum, TyInt, TyInt -> TyInt
-			| Diff, TyInt, TyInt -> TyInt
-			| Mult, TyInt, TyInt -> TyInt
-			| Div, TyInt, TyInt -> TyInt
-			| Eq, TyInt, TyInt -> TyBool
-			| Leq, TyInt, TyInt -> TyBool
-			| _ -> raise InvalidType)
+			      Sum, TyInt, TyInt  -> TyInt
+				| Sub, TyInt, TyInt  -> TyInt
+				| Mult, TyInt, TyInt -> TyInt
+				| Div, TyInt, TyInt  -> TyInt
+				| Equal, TyInt, TyInt          -> TyBool
+				| Equal, TyBool, TyBool        -> TyBool
+				| NotEqual, TyBool, TyBool     -> TyBool
+				| NotEqual, TyInt, TyInt       -> TyBool
+				| GreaterOrEqual, TyInt, TyInt -> TyBool
+				| And, TyBool, TyBool          -> TyBool
+				| Or, TyBool, TyBool           -> TyBool
+				| Less, TyInt, TyInt           -> TyBool
+				| LessOrEqual, TyInt, TyInt    -> TyBool
+				| Greater, TyInt, TyInt        -> TyBool
+				| _ -> raise InvalidType
+			)
+
+(* From this point, things need to be tested *)
+
 (* IF e1 then e2 else e3
 e1: bool	e2: T	e3:T	if then else: T*)
 	| If(e1,e2,e3) ->
