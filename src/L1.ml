@@ -5,8 +5,6 @@
 #use "typeinfer_L1.ml" ;;
 
 
-
-(* NAO FUNCIONA, SO IGNOREM
 let t1 = TyInt;;
 let t2 = TyBool;;
 let t3 = TyFn(t1, t2);;
@@ -19,7 +17,8 @@ let printOutput elem =
     match elem with
      _ -> Printf.printf "Result: %s\n" elem
     in List.iter printOutput output ;;
-*)
+
+
 
 (*  TESTAR PROGRAMAS AQUI *)
 

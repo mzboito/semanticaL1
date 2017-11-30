@@ -9,7 +9,7 @@ let rec size x = match x with
 let rec type2string t = match t with
     TyInt -> "int"
     | TyBool -> "bool"
-    | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "TyFn("^t1'^"->"^t2'^")" ;;
+    | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "fun("^t1'^"->"^t2'^")" ;;
 
 (* Function to update environment *)
 let update variable value environment : env = match environment with
@@ -23,7 +23,7 @@ let rec lookup variable environment : value = match environment with
     if (name = variable)    (* Found the variable in the head *)
     then v                  (* Returns variable value *)
     else lookup variable tl (* Look for it in the tale *)
-    
+
   (*
   let rec generateString elem =
       match elem with
