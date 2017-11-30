@@ -1,20 +1,20 @@
-#use "term_L1.ml" 
+#use "term_L1.ml"
 #use "utils.ml" ;;
 
 exception InvalidType ;;
 
-let rec typecheck environment exp : tipo = match exp with 
+let rec typecheck environment exp : tipo = match exp with
 	(* If expression is a value *)
 	  Num(exp)  -> TyInt
 	| Bool(exp) -> TyBool
 
 	(* Binary operations *)
 	| Bop(op,exp1,exp2) ->
-		let op1 = typecheck environment exp1 in 
-		let op2 = typecheck environment exp2 in 
+		let ope1 = typecheck environment exp1 in
+		let ope2 = typecheck environment exp2 in
 		(match op, ope1, ope2 with
-			      Sum, TyInt, TyInt  -> TyInt
-				| Sub, TyInt, TyInt  -> TyInt
+			    Sum, TyInt, TyInt  -> TyInt
+				| Diff, TyInt, TyInt  -> TyInt
 				| Mult, TyInt, TyInt -> TyInt
 				| Div, TyInt, TyInt  -> TyInt
 				| Equal, TyInt, TyInt          -> TyBool
@@ -58,15 +58,15 @@ e1: bool	e2: T	e3:T	if then else: T*)
 			| _ -> raise InvalidType)
 
 	(*ADICIONAR LET AQUI*)
-    	| Let(variable,t,exp1,exp2) ->
+  | Let(variable,t,exp1,exp2) ->
 		let tipovar = typecheck environment (lookup variable environment) in
 		let tipoexp1 = typecheck environment exp1 in
 		let tipoexp2 = typecheck environment exp2 in
 		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
-		
+
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
-	
+
 
 
 	(*ADICIONAR LET REC AQUI*)
