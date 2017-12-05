@@ -2,6 +2,7 @@
 #use "utils.ml" ;;
 
 exception InvalidType ;;
+exception Variable_not_found ;; (* não tava definida, acho *)
 
 let rec typecheck environment exp : tipo = match exp with
 	(* If expression is a value *)
@@ -37,15 +38,13 @@ let rec typecheck environment exp : tipo = match exp with
 			let tipoe3 = typecheck environment e3 in
 				if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
-(* From this point, things need to be tested *)
-
-(*
-| Fun(variable, t, exp) ->
-let tipoExp =  typecheck environment exp in
-let tipoVar = typecheck environment (lookup variable environment) in
-if tipoVar == t then TyFn(t,  tipoExp) else raise InvalidType
-| Var(variable) -> typecheck environment (lookup variable environment) *)
-(* lookup retorna um valor, ver o tipo desse valor*)
+		|Fun(variable, t, exp) ->
+		let tipoExp =  typecheck environment exp in
+		let checkVar = lookupExpr variable environment in
+		let tipoVar = typecheck environment checkVar in
+		if tipoVar == t then TyFn(tipoVar,  tipoExp) else raise InvalidType 
+		
+       		 | Var(variable) -> typecheck environment (lookupExpr variable environment) 
 
 	(*ADICIONAR O FUN AQUI *)
 
