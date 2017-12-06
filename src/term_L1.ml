@@ -13,7 +13,7 @@ type expr = Num of int
           | App of expr * expr
           | Fun of variable * tipo * expr
           | Let of variable * tipo * expr * expr
-          | Lrec of variable * tipo * tipo * variable * tipo * expr * expr
+          | Lrec of variable * (tipo * tipo) * (variable * tipo * expr) * expr
 
 type value = Vnum of int
            | Vbool of bool
