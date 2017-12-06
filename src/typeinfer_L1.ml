@@ -54,15 +54,17 @@ let rec typecheck environment exp : tipo = match exp with
 			TyFn(tipo1,tipo2) -> if tipo1 == appexp2 then tipo2 else raise InvalidType
 			| _ -> raise InvalidType) 
 (*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
+		 | Let(variable,t,exp1,exp2) ->
+		let tipovar = typecheck environment (lookupExpr variable environment) in
+		let tipoexp1 = typecheck environment exp1 in
+		let tipoexp2 = typecheck environment exp2 in
+		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
+
 (*
 	
 
 	(*ADICIONAR LET AQUI*)
-  | Let(variable,t,exp1,exp2) ->
-		let tipovar = typecheck environment (lookup variable environment) in
-		let tipoexp1 = typecheck environment exp1 in
-		let tipoexp2 = typecheck environment exp2 in
-		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
+ 
 *)
 	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
 
