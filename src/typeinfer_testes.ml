@@ -38,6 +38,23 @@ let evalList = t1:: (t2:: (t3 :: [])) ;;
 let output = List.map (fun x -> (typecheck [] x)) evalList ;;
 let strings = List.map (fun t -> (type2string t)) output ;;
 
+(* e1: t -> t'   e2: t    e1e2: t' *)
+
+let t25 = App(t22,t1) ;; (* t22: int -> int   t1: int    e1e2: int *)
+let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , essa da erro *)
+let t26 = App(t23,t9) ;; (* t23: int -> bool   e2: bool    e1e2: bool , essa da erro ok *) 
+
+(* Testes para app *)
+
+Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t25))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
+Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t27))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
+Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t26))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
 (* Testes para tipo Num, Bool, Bop - Ok *)
 
 Printf.printf "Verificando tipo num: %s" (type2string (typecheck [] t1)) ;;
