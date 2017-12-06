@@ -159,13 +159,13 @@ let rec typecheck environment exp : tipo = match exp with
   (* Variable *)
   | Var(v) -> lookupT v environment
 
-  (* Application *)
+ (* Application *)
   | App(e1,e2) ->
     let exp1 = typecheck environment e1 in
     let exp2 = typecheck environment e2 in
     (match exp1 with
-      TyFn(t1,t2) -> (if t2 = exp2
-          then exp2
+      TyFn(t1,t2) -> (if t1 = exp2
+          then t2
           else raise InvalidType)
       |_ -> raise InvalidType)
 
@@ -302,8 +302,8 @@ let strings = List.map (fun t -> (type2string t)) output ;;
 (* e1: t -> t'   e2: t    e1e2: t' *)
 
 let t25 = App(t22,t1) ;; (* t22: int -> int   t1: int    e1e2: int *)
-let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , essa da erro *)
-let t26 = App(t23,t9) ;; (* t23: int -> bool   e2: bool    e1e2: bool , essa da erro ok *) 
+let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , *)
+let t26 = App(t23,t7) ;; (* t23: int -> bool   e2: bool    e1e2: bool , erro *) 
 
 (* e1: T  vaar: T  e2: T', let é T' *)
 let t28 = Let(t24,TyBool, t19, t16) ;;
