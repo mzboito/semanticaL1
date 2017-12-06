@@ -44,6 +44,24 @@ let t25 = App(t22,t1) ;; (* t22: int -> int   t1: int    e1e2: int *)
 let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , essa da erro *)
 let t26 = App(t23,t9) ;; (* t23: int -> bool   e2: bool    e1e2: bool , essa da erro ok *) 
 
+(* e1: T  vaar: T  e2: T', let é T' *)
+
+let t28 = Let(t24,TyBool, t19, t16) ;;
+let t29 = Let(t21,TyInt, t16, t19) ;;
+let t30 = Let(t21,TyInt, t19, t16) ;; (* deve dar erro *)
+
+(* Testes para let *)
+
+Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv2) (t28))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
+Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv) (t29))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
+Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv) (t30))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+
+
 (* Testes para app *)
 
 Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t25))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
