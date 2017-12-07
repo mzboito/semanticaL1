@@ -65,7 +65,8 @@ let rec type2string t = match t with
 
 (* Function to transform value in string *)
 let rec value2string v = match v with
-	Vnum(n) -> "Vnum"
+
+	| Vnum(n) -> "Vnum" 
 	| Vbool(b) -> "Vbool"
 	| Vclos (var,exp,env) -> "Vclos"
 	| Vrclos (var,ver,exp,env) -> "Vrclos" ;;
@@ -219,13 +220,19 @@ let rec eval environment e : value = match e with
       )
 
 
-  (* Conditional 
-  | If(e1, e2, e3) when ((eval environment e1) == Vbool(true)) -> eval environment e2
-  | If(e1, e2, e3) when ((eval environment e1) == Vbool(false)) -> eval environment e3
+ (*  Conditional *) 
+  | If(e1, e2, e3) when ((eval environment e1) = Vbool(true)) -> eval environment e2
+  | If(e1, e2, e3) when ((eval environment e1) = Vbool(false)) -> eval environment e3
+
+
   (* Function *)
   | Fun(v, t, e) -> Vclos(v, e, environment)
-  (* Variable *)
+  
+
+(* Variable *)
   | Var(v) -> lookup v environment
+
+
   (* Application *)
   | App(e1, e2) -> 
       let exp1 = eval environment e1 in
@@ -235,7 +242,7 @@ let rec eval environment e : value = match e with
         | Vrclos(f, x, e, envA), value -> eval (update f (Vrclos(f, x, e, envA)) (update x value envA)) e
         | _ -> raise InvalidEval
       )
-  (* Let *)
+(*  (* Let *)
   | Let(variable, t, e1, e2) ->
       let exp1 = eval environment e1 in
       eval (update variable exp1 environment) e2
@@ -391,13 +398,40 @@ let vclosTesting = Vclos(varInt,t22,valueEnv);;
 let vclosTesting = Vclos(varBool,t22,valueEnv2);;
 let vclosTesting = Vrclos(varBool,varBool,t4,valueEnv2);;
 
+let expBopE = Bop(Equal,Bool(true),Bool(false));;
+let expBopE2 = Bop(Equal,Bool(false),Bool(true));;
 let expBopSum = eval [] (Bop(Sum,Num(1),Num(2))) ;;
 let expBopEqual= eval [] (Bop(Equal,Bool(true),Bool(false))) ;;
+
+let ifexp = If(expBopE,Bool(true),Bool(false)) ;; 
+let ifexpInt = If(expBopE,Bool(true),Num(3)) ;; 
+
+let funTest = Fun(varInt,TyInt,Bop(Mult,Num(5),Num(4)));;
+let funTest2 = Fun(varBool,TyBool,Bop(Equal,Num(5),Num(4)));;
+
+let varTest = Var(varBool) ;;
+
+let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
 
 Printf.printf "Verificando big step - bop Sum: %s" (value2string (expBopSum) ) ;; 
 print_newline();; 
 Printf.printf "Verificando big step - bop Equal: %s" (value2string (expBopEqual) ) ;; 
 print_newline();; 
+
+Printf.printf "Verificando big step - if: %s" (value2string (eval [] ifexp ) ) ;; 
+print_newline();;
+Printf.printf "Verificando big step - if: %s" (value2string (eval [] ifexpInt ) ) ;; 
+print_newline();;  
+
+Printf.printf "Verificando big step - fun: %s" (value2string (eval [] funTest ) ) ;; 
+print_newline();;  
+Printf.printf "Verificando big step - fun: %s" (value2string (eval [] funTest2 ) ) ;; 
+print_newline();; 
+
+Printf.printf "Verificando big step - var: %s" (value2string (eval valueEnv2 varTest ) ) ;; 
+print_newline();;  
+
+Printf.printf "Verificando big step - app: %s" (value2string (eval [] app ) ) ;; 
 (* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
 
 
