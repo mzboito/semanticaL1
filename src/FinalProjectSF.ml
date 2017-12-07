@@ -64,12 +64,13 @@ let rec type2string t = match t with
     | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "fun("^t1'^"->"^t2'^")" ;;
 
 (* Function to transform value in string *)
-let rec value2string v = match v with
+let rec value2string v : unit =
+    match v with
 
-	| Vnum(n) -> "Vnum" 
-	| Vbool(b) -> "Vbool"
-	| Vclos (var,exp,env) -> "Vclos"
-	| Vrclos (var,ver,exp,env) -> "Vrclos" ;;
+	| Vnum(n) -> Printf.printf "Vnum(%d)" n
+	| Vbool(b) ->Printf.printf "Vbool(%b)" b
+	| Vclos (var,exp,env) -> Printf.printf "Vclos"
+	| Vrclos (var,ver,exp,env) -> Printf.printf "Vrclos" ;;
  
 
 (* Function to update environment *)
@@ -413,25 +414,37 @@ let varTest = Var(varBool) ;;
 
 let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
 
-Printf.printf "Verificando big step - bop Sum: %s" (value2string (expBopSum) ) ;; 
-print_newline();; 
-Printf.printf "Verificando big step - bop Equal: %s" (value2string (expBopEqual) ) ;; 
+Printf.printf "Verificando big step - bop Sum:" ;;
+value2string (expBopSum)  ;; 
+
 print_newline();; 
 
-Printf.printf "Verificando big step - if: %s" (value2string (eval [] ifexp ) ) ;; 
+Printf.printf "Verificando big step - bop Equal: " ;;
+
+value2string (expBopEqual) ;; 
+print_newline();; 
+
+Printf.printf "Verificando big step - if: " ;;
+value2string (eval [] ifexp ) ;; 
 print_newline();;
-Printf.printf "Verificando big step - if: %s" (value2string (eval [] ifexpInt ) ) ;; 
+
+Printf.printf "Verificando big step - if: " ;;
+value2string (eval [] ifexpInt )  ;; 
 print_newline();;  
 
-Printf.printf "Verificando big step - fun: %s" (value2string (eval [] funTest ) ) ;; 
+Printf.printf "Verificando big step - fun: " ;;
+value2string (eval [] funTest ) ;; 
 print_newline();;  
-Printf.printf "Verificando big step - fun: %s" (value2string (eval [] funTest2 ) ) ;; 
+Printf.printf "Verificando big step - fun: " ;;
+value2string (eval [] funTest2 )  ;; 
 print_newline();; 
 
-Printf.printf "Verificando big step - var: %s" (value2string (eval valueEnv2 varTest ) ) ;; 
+Printf.printf "Verificando big step - var: " ;;
+value2string (eval valueEnv2 varTest ) ;; 
 print_newline();;  
 
-Printf.printf "Verificando big step - app: %s" (value2string (eval [] app ) ) ;; 
+Printf.printf "Verificando big step - app: ";;
+value2string (eval [] app )  ;; 
 (* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
 
 
