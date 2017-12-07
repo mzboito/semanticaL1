@@ -414,6 +414,8 @@ let varTest = Var(varBool) ;;
 
 let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
 
+
+
 Printf.printf "Verificando big step - bop Sum:" ;;
 value2string (expBopSum)  ;; 
 
