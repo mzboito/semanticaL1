@@ -353,16 +353,16 @@ print_newline();;
 *)
 
 (* Testes para o fun - ok 
-Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t22)) ;; (* variavel t21 definida dentro do currentenv*)
+Printf.printf "Verificando fun: Fun(variavelInt,TyInt,Bop(Mult, Num(3), Num(3))) %s" (type2string (typecheck currentEnv t22)) ;; (* variavel t21 definida dentro do currentenv*)
 print_newline();;  
-Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t23)) ;; 
+Printf.printf "Verificando fun: Fun(variavelInt,TyInt,Bop(Equal, Bool(true), Bool(true))) %s" (type2string (typecheck currentEnv t23)) ;; 
 print_newline();;  
 *)
 (* Testes para var - ok 
 
-Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;; 
+Printf.printf "Verificando var: variavelInt %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;; 
 print_newline();;  
-Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;; 
+Printf.printf "Verificando var: variavelBool %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;; 
 print_newline();; 
 *)
 
