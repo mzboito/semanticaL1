@@ -16,7 +16,7 @@
 *)
 
 (* ** Terms ** *)
-type variable = string 
+type variable = string
 
 type operator = Sum | Diff | Mult | Div | Equal | NotEqual | GreaterOrEqual | And | Or | Less | LessOrEqual | Greater
 
@@ -64,20 +64,17 @@ let rec type2string t = match t with
     | TyFn(t1,t2) -> let t1' = type2string(t1) in let t2' = type2string(t2) in "fun("^t1'^"->"^t2'^")" ;;
 
 (* Function to transform value in string *)
-let rec value2string v : unit =
-    match v with
-
+let rec value2string v : unit = match v with
 	| Vnum(n) -> Printf.printf "Vnum(%d)" n
 	| Vbool(b) ->Printf.printf "Vbool(%b)" b
-	| Vclos (var,exp,env) -> Printf.printf "Vclos"
-	| Vrclos (var,ver,exp,env) -> Printf.printf "Vrclos" ;;
- 
+	| Vclos (var,exp,env) -> Printf.printf "Vclos (var,exp,env)"
+	| Vrclos (var,ver,exp,env) -> Printf.printf "Vrclos (var, ver, exp, env)" ;;
+
 
 (* Function to update environment *)
 let update variable v environment : env = match environment with
   | [] -> [(variable, v)]
   | hd::tl -> List.append [(variable, v)] environment ;;
-
 
 
 (* Function to look up for variable in environment *)
@@ -105,21 +102,7 @@ let rec lookupT variable environment : tipo = match environment with
     then v                      (* Returns variable value *)
     else lookupT variable tl ;; (* Look for it in the tale *)
 
-
-let rec lookupExpr variable environment : expr = match environment with
-  | [] -> raise Variable_not_found
-  | (name, v)::tl ->
-    if (name == variable)    (* Found the variable in the head *)
-    then v                  (* Returns variable value *)
-    else lookupExpr variable tl ;; (* Look for it in the tale *)
-	
-(* Function to update environment *)
-let updateExpr variable expr environment : envExp = match environment with
-  | [] -> [(variable, expr)]
-  | hd::tl -> List.append [(variable, expr)] environment ;;
-  
 (* ** Type Infer ** *)
-
 exception InvalidType ;;
 
 let rec typecheck environment exp : tipo = match exp with
@@ -147,7 +130,7 @@ let rec typecheck environment exp : tipo = match exp with
         | LessOrEqual, TyInt, TyInt -> TyBool
         | Greater, TyInt, TyInt -> TyBool
         | _ -> raise InvalidType
-      ) 
+      )
 
   (* Conditional *)
   | If(e1,e2,e3) ->
@@ -174,9 +157,10 @@ let rec typecheck environment exp : tipo = match exp with
 
   (* Let *)
   | Let(variable, t, e1, e2) ->
-    let x = typecheck environment e1 in (if x == t
-                 then typecheck (updateT variable t environment) e2
-                 else raise InvalidType)
+    let x = typecheck environment e1 in
+    (if x == t (*if the expression e1 is right (of type t)*)
+        then typecheck (updateT variable t environment) e2 (*ten the output is of typecheck(e2)*)
+        else raise InvalidType)
 
   (* Let Rec *)
   | Lrec(func, (ty1, ty2), (var, ty3, e1), e2) ->
@@ -188,13 +172,12 @@ let rec typecheck environment exp : tipo = match exp with
       then typecheck (updateT func ty4 environment) e2
       else raise InvalidType
     )
-
 ;;
 
 (* ** Big step ** *)
 exception InvalidEval ;;
 let rec eval environment e : value = match e with
-  
+
   (* Values *)
     Num(v)  -> Vnum(v)
   | Bool(b) -> Vbool(b)
@@ -216,26 +199,26 @@ let rec eval environment e : value = match e with
         | Or, Vbool(exp1), Vbool(exp2) -> Vbool(exp1 || exp2)
         | Less, Vnum(exp1), Vnum(exp2) -> Vbool(exp1 < exp2)
         | LessOrEqual, Vnum(exp1), Vnum(exp2) -> Vbool(exp1 <= exp2)
-        | Greater, Vnum(exp1), Vnum(exp2) -> Vbool(exp1 > exp2) 
+        | Greater, Vnum(exp1), Vnum(exp2) -> Vbool(exp1 > exp2)
 	| _ -> raise InvalidEval
       )
 
 
- (*  Conditional *) 
+  (*  Conditional *)
   | If(e1, e2, e3) when ((eval environment e1) = Vbool(true)) -> eval environment e2
   | If(e1, e2, e3) when ((eval environment e1) = Vbool(false)) -> eval environment e3
 
 
   (* Function *)
   | Fun(v, t, e) -> Vclos(v, e, environment)
-  
 
-(* Variable *)
+
+  (* Variable *)
   | Var(v) -> lookup v environment
 
 
   (* Application *)
-  | App(e1, e2) -> 
+  | App(e1, e2) ->
       let exp1 = eval environment e1 in
       let exp2 = eval environment e2 in
       (match exp1, exp2 with
@@ -243,11 +226,14 @@ let rec eval environment e : value = match e with
         | Vrclos(f, x, e, envA), value -> eval (update f (Vrclos(f, x, e, envA)) (update x value envA)) e
         | _ -> raise InvalidEval
       )
-(*  (* Let *)
+
+  (* Let *)
   | Let(variable, t, e1, e2) ->
-      let exp1 = eval environment e1 in
-      eval (update variable exp1 environment) e2
-  (* Let Rec *)
+      let exp1 = eval environment e1 in (*evaluate e1*)
+      let env2 = (update variable exp1 environment) in (*creates {x->v} + env*)
+      eval env2 e2 (*evaluates e2 in this new environment*)
+
+  (* Let Rec *) (*
   | Lrec(f, (t1, t2), (variable, t3, e1), e2) ->
       let exp1 = eval environment (Fun(variable, t3, e1)) in
       (match exp1 with
@@ -257,9 +243,6 @@ let rec eval environment e : value = match e with
 *)
 
 	| _ -> raise InvalidEval
-
-
-	
 ;;
 
 (* ** Tests Type Infer ** *)
@@ -306,24 +289,24 @@ let currentEnv2 = updateT (t24) (TyBool) (env) ;;
 
 let t25 = App(t22,t1) ;; (* t22: int -> int   t1: int    e1e2: int *)
 let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , *)
-let t26 = App(t23,t7) ;; (* t23: int -> bool   e2: bool    e1e2: bool , erro *) 
+let t26 = App(t23,t7) ;; (* t23: int -> bool   e2: bool    e1e2: bool , erro *)
 
 (* e1: T  vaar: T  e2: T', let é T' *)
 let t28 = Let(t24,TyBool, t19, t16) ;;
 let t29 = Let(t21,TyInt, t16, t19) ;;
 let t30 = Let(t21,TyInt, t19, t16) ;; (* deve dar erro *)
-let t31 = Lrec(t21,(TyInt,TyInt),(t21,TyInt,t15),t16);; 
-let t32 = Lrec(t24,(TyBool,TyBool),(t24,TyBool,t5),t12);; 
+let t31 = Lrec(t21,(TyInt,TyInt),(t21,TyInt,t15),t16);;
+let t32 = Lrec(t24,(TyBool,TyBool),(t24,TyBool,t5),t12);;
 let t33 = Lrec(t24,(TyBool,TyInt),(t24,TyBool,t5),t12);; (* deve dar erro *)
 
-(* Testes para let rec - ok 
-Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv) (t31))) ;; 
-print_newline();;  
-Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t32))) ;; 
-print_newline();;  
+(* Testes para let rec - ok
+Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv) (t31))) ;;
+print_newline();;
+Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t32))) ;;
+print_newline();;
 Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t33))) ;; *)
 
-(* Testes para let 
+(* Testes para let
 Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv2) (t28))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
 Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv) (t29))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
@@ -331,7 +314,7 @@ print_newline();;
 Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv) (t30))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
 *)
-(* Testes para app - ok 
+(* Testes para app - ok
 Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t25))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
 Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t27))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
@@ -340,7 +323,7 @@ Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t
 print_newline();;
 *)
 
-(* Testes para tipo Num, Bool, Bop - Ok 
+(* Testes para tipo Num, Bool, Bop - Ok
 Printf.printf "Verificando tipo num: %s" (type2string (typecheck [] t1)) ;;
 print_newline();;
 Printf.printf "Verificando tipo bool: %s" (type2string (typecheck [] t2)) ;;
@@ -355,7 +338,7 @@ print_newline();;
 Printf.printf "Verificando tipo op Equal: %s" (type2string (typecheck [] t6)) ;;
 *)
 
-(* Testes para o if - ok 
+(* Testes para o if - ok
 print_newline();;
 Printf.printf "Verificando if: %s" (type2string (typecheck [] t18)) ;;
 print_newline();;
@@ -365,18 +348,18 @@ Printf.printf "Verificando if: %s" (type2string (typecheck [] t20)) ;;
 print_newline();;
 *)
 
-(* Testes para o fun - ok 
+(* Testes para o fun - ok
 Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t22)) ;; (* variavel t21 definida dentro do currentenv*)
-print_newline();;  
-Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t23)) ;; 
-print_newline();;  
+print_newline();;
+Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t23)) ;;
+print_newline();;
 *)
-(* Testes para var - ok 
+(* Testes para var - ok
 
-Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;; 
-print_newline();;  
-Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;; 
-print_newline();; 
+Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;;
+print_newline();;
+Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;;
+print_newline();;
 *)
 
 (* Testes Big Step *)
@@ -386,7 +369,7 @@ let evalList = t1:: (t2:: (t3 :: [])) ;;
 let output = List.map (fun x -> (typecheck [] x)) evalList ;;
 let strings = List.map (fun t -> (type2string t)) output ;;
 
-(* Values *)
+(* CONJUNTO DE TESTES *)
 let numTesting = Vnum(1);;
 let boolTesting = Vbool(true);;
 
@@ -404,8 +387,8 @@ let expBopE2 = Bop(Equal,Bool(false),Bool(true));;
 let expBopSum = eval [] (Bop(Sum,Num(1),Num(2))) ;;
 let expBopEqual= eval [] (Bop(Equal,Bool(true),Bool(false))) ;;
 
-let ifexp = If(expBopE,Bool(true),Bool(false)) ;; 
-let ifexpInt = If(expBopE,Bool(true),Num(3)) ;; 
+let ifexp = If(expBopE,Bool(true),Bool(false)) ;;
+let ifexpInt = If(expBopE,Bool(true),Num(3)) ;;
 
 let funTest = Fun(varInt,TyInt,Bop(Mult,Num(5),Num(4)));;
 let funTest2 = Fun(varBool,TyBool,Bop(Equal,Num(5),Num(4)));;
@@ -415,38 +398,37 @@ let varTest = Var(varBool) ;;
 let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
 
 
-
 Printf.printf "Verificando big step - bop Sum:" ;;
-value2string (expBopSum)  ;; 
+value2string (expBopSum)  ;;
 
-print_newline();; 
+print_newline();;
 
 Printf.printf "Verificando big step - bop Equal: " ;;
 
-value2string (expBopEqual) ;; 
-print_newline();; 
-
-Printf.printf "Verificando big step - if: " ;;
-value2string (eval [] ifexp ) ;; 
+value2string (expBopEqual) ;;
 print_newline();;
 
 Printf.printf "Verificando big step - if: " ;;
-value2string (eval [] ifexpInt )  ;; 
-print_newline();;  
+value2string (eval [] ifexp ) ;;
+print_newline();;
+
+Printf.printf "Verificando big step - if: " ;;
+value2string (eval [] ifexpInt )  ;;
+print_newline();;
 
 Printf.printf "Verificando big step - fun: " ;;
-value2string (eval [] funTest ) ;; 
-print_newline();;  
+value2string (eval [] funTest ) ;;
+print_newline();;
 Printf.printf "Verificando big step - fun: " ;;
-value2string (eval [] funTest2 )  ;; 
-print_newline();; 
+value2string (eval [] funTest2 )  ;;
+print_newline();;
 
 Printf.printf "Verificando big step - var: " ;;
-value2string (eval valueEnv2 varTest ) ;; 
-print_newline();;  
+value2string (eval valueEnv2 varTest ) ;;
+print_newline();;
 
 Printf.printf "Verificando big step - app: ";;
-value2string (eval [] app )  ;; 
+value2string (eval [] app )  ;;
 (* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
 
 
