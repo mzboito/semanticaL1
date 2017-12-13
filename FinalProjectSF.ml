@@ -235,7 +235,9 @@ let rec eval environment e : value = match e with
       eval env2 e2 (*evaluates e2 in this new environment*)
 
   (* Let Rec *)
-  | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> raise InvalidEval
+  | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> (*raise InvalidEval*)
+      let exp1 = eval environment (Fun(variable, t3, e1)) in (*????*)
+      (*let env2 = update f ?? environment  *)
 (*    {let rec f = fn x => e1 in e2}
     {f -> {f,variable, e1, env}}
     {eval env e2}
@@ -244,10 +246,6 @@ let rec eval environment e : value = match e with
         | Vclos(x, e, env) -> eval (update f (Vrclos(f, x, e, environment)) env) e2
         | _ -> raise InvalidEval
       )*)
-
-  | Vclos(variable, exp, environment) -> raise InvalidEval
-
-  | Vrclos(f, variable, exp, environment) -> raise Invalid Eval
 
 	| _ -> raise InvalidEval
 ;;
