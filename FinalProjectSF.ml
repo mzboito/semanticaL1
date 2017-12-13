@@ -178,10 +178,11 @@ let rec typecheck environment exp : tipo = match exp with
 exception InvalidEval ;;
 let rec eval environment e : value = match e with
 
-  (* Values *)
+  (* Values (BS-NUM e BS-BOOL) *)
     Num(v)  -> Vnum(v)
   | Bool(b) -> Vbool(b)
-  (* Binary operations *)
+
+  (* Binary operations  (BS-OP)*)
   | Bop(op,exp1,exp2) ->
     let ope1 = eval environment exp1 in
     let ope2 = eval environment exp2 in
@@ -204,7 +205,7 @@ let rec eval environment e : value = match e with
       )
 
 
-  (*  Conditional *)
+  (*  Conditional (BS-IF)*)
   | If(e1, e2, e3) when ((eval environment e1) = Vbool(true)) -> eval environment e2
   | If(e1, e2, e3) when ((eval environment e1) = Vbool(false)) -> eval environment e3
 
@@ -213,7 +214,7 @@ let rec eval environment e : value = match e with
   | Fun(v, t, e) -> Vclos(v, e, environment)
 
 
-  (* Variable *)
+  (* Variable (BS-ID)*)
   | Var(v) -> lookup v environment
 
 
@@ -227,20 +228,26 @@ let rec eval environment e : value = match e with
         | _ -> raise InvalidEval
       )
 
-  (* Let *)
+  (* Let (BS-LET)*)
   | Let(variable, t, e1, e2) ->
       let exp1 = eval environment e1 in (*evaluate e1*)
       let env2 = (update variable exp1 environment) in (*creates {x->v} + env*)
       eval env2 e2 (*evaluates e2 in this new environment*)
 
-  (* Let Rec *) (*
-  | Lrec(f, (t1, t2), (variable, t3, e1), e2) ->
+  (* Let Rec *)
+  | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> raise InvalidEval
+(*    {let rec f = fn x => e1 in e2}
+    {f -> {f,variable, e1, env}}
+    {eval env e2}
       let exp1 = eval environment (Fun(variable, t3, e1)) in
       (match exp1 with
         | Vclos(x, e, env) -> eval (update f (Vrclos(f, x, e, environment)) env) e2
         | _ -> raise InvalidEval
-      )
-*)
+      )*)
+
+  | Vclos(variable, exp, environment) -> raise InvalidEval
+
+  | Vrclos(f, variable, exp, environment) -> raise Invalid Eval
 
 	| _ -> raise InvalidEval
 ;;
