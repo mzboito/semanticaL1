@@ -443,15 +443,19 @@ type instruction = INT of int
                  | JUMP of int
                  | JUMPIFTRUE of int
                  | VAR of variable
-                 | FUN of variable * c (*FUN(x,c)*)
+                 | FUN of variable * code (*FUN(x,c)*)
                  | RFUN of variable * variable * c (*RFUN(f,x,c)*)
                  | APPLY
 and
-  c = instruction list
+  code = instruction list
 and
   ssm2_env = (variable * storableValue) list
 and
   stack = storableValue list
+and
+  dump = (code * stack * ssm2_env) list
+and
+  state = code * stack * ssm2_env * dump
 
 exception SSM2_Eval_Error of string ;;
 
