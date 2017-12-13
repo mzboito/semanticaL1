@@ -423,9 +423,37 @@ value2string (eval [] app )  ;;
 (* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
 
 
+(* ** SSM2 STRUCTURE ** *)
 
+type storableValue = INT of int
+                   | BOOL of bool
+                   | CLOS of ssm2_env * variable * c
+                   | RCLOS of ssm2_env * variable * variable * c
 
+type instruction = INT of int
+                 | BOOL of bool
+                 | POP
+                 | COPY
+                 | ADD
+                 | INV
+                 | EQ
+                 | GT
+                 | AND
+                 | NOT
+                 | JUMP of int
+                 | JUMPIFTRUE of int
+                 | VAR of variable
+                 | FUN of variable * c (*FUN(x,c)*)
+                 | RFUN of variable * variable * c (*RFUN(f,x,c)*)
+                 | APPLY
+and
+  c = instruction list
+and
+  ssm2_env = (variable * storableValue) list
+and
+  stack = storableValue list
 
+exception SSM2_Eval_Error of string ;;
 
 (* ** SSM2 Interpreter ** *)
 
