@@ -176,6 +176,7 @@ let rec typecheck environment exp : tipo = match exp with
 
 (* ** Big step ** *)
 exception InvalidEval ;;
+
 let rec eval environment e : value = match e with
 
   (* Values (BS-NUM e BS-BOOL) *)
@@ -237,10 +238,10 @@ let rec eval environment e : value = match e with
   (* Let Rec *)
   | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> (*{let rec f = fn x => e1 in e2}*)
       let exp1 = eval environment (Fun(variable, t3, e1)) in
-      let recenv = update f exp1 environment in (*{f -> {f,variable,e1,env}}*)
+      (*let recenv = update f exp1 environment in (*{f -> {f,variable,e1,env}}*)
       let evale2 = eval recenv e2 in
-      (* let exp1 = eval environment (Fun(variable, t3, e1)) in*)
-      (match exp1 with (*there are some things missing......*)
+      let exp1 = eval environment (Fun(variable, t3, e1)) in*)
+      (match exp1 with
         | Vclos(x, e, env) -> eval (update f (Vrclos(f, x, e, environment)) env) e2
         | _ -> raise InvalidEval
       )
