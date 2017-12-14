@@ -229,22 +229,22 @@ let rec eval environment e : value = match e with
         | _ -> raise InvalidEval
       )
 
-  (* Let (BS-LET)*)
-  | Let(variable, t, e1, e2) ->
-      let exp1 = eval environment e1 in (*evaluate e1*)
-      let env2 = (update variable exp1 environment) in (*creates {x->v} + env*)
-      eval env2 e2 (*evaluates e2 in this new environment*)
+    (* Let (BS-LET)*)
+    | Let(variable, t, e1, e2) ->
+        let exp1 = eval environment e1 in (*evaluate e1*)
+        let env2 = (update variable exp1 environment) in (*creates {x->v} + env*)
+        eval env2 e2 (*evaluates e2 in this new environment*)
 
-  (* Let Rec *)
-  | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> (*{let rec f = fn x => e1 in e2}*)
-      let exp1 = eval environment (Fun(variable, t3, e1)) in
-      (*let recenv = update f exp1 environment in (*{f -> {f,variable,e1,env}}*)
-      let evale2 = eval recenv e2 in
-      let exp1 = eval environment (Fun(variable, t3, e1)) in*)
-      (match exp1 with
-        | Vclos(x, e, env) -> eval (update f (Vrclos(f, x, e, environment)) env) e2
-        | _ -> raise InvalidEval
-      )
+    (* Let Rec *)
+    | Lrec(f, (t1, t2), (variable, t3, e1), e2) -> (*{let rec f = fn x => e1 in e2}*)
+        let exp1 = eval environment (Fun(variable, t3, e1)) in
+        (*let recenv = update f exp1 environment in (*{f -> {f,variable,e1,env}}*)
+        let evale2 = eval recenv e2 in
+        let exp1 = eval environment (Fun(variable, t3, e1)) in*)
+        (match exp1 with
+          | Vclos(x, e, env) -> eval (update f (Vrclos(f, x, e, environment)) env) e2
+          | _ -> raise InvalidEval
+        )
 
 	| _ -> raise InvalidEval
 ;;
@@ -450,10 +450,10 @@ type instruction = INT of int
               and
                  code = instruction list
 
-type storableValue = INT of int
-                  | BOOL of bool
-                  | CLOS of ssm2_env * variable * code
-                  | RCLOS of ssm2_env * variable * variable * code
+type storableValue = SVINT of int
+                  | SVBOOL of bool
+                  | SVCLOS of ssm2_env * variable * code
+                  | SVRCLOS of ssm2_env * variable * variable * code
                   and
                     ssm2_env = (variable * storableValue) list
                   and
@@ -464,7 +464,7 @@ type storableValue = INT of int
 type  state = STATE of code * stack * ssm2_env * dump
 
 exception SSM2_Compiler_Error ;;
-
+exception SSM2_Interpreter_Error ;;
 (* ** SSM2 Compiler ** *)
 
 let rec ssm2_compiler environment expr : code = match expr with
@@ -472,7 +472,7 @@ let rec ssm2_compiler environment expr : code = match expr with
       Num(v)  -> [INT(v)]
     | Bool(b) -> [BOOL(b)]
 
-
+    (*Binary operations*)
     | Bop(op,exp1,exp2) ->
       let comp1 = ssm2_compiler environment exp1 in
       let comp2 = ssm2_compiler environment exp2 in
@@ -531,15 +531,91 @@ let rec ssm2_compiler environment expr : code = match expr with
       let comp_e2 = ssm2_compiler environment e2 in
       List.append [RFUN(f, variable, comp_e1)] (List.append [FUN(f, comp_e2)] [APPLY])
 
-    | _ -> raise SSM2_Compiler_Error;;
+    (*| _ -> raise SSM2_Compiler_Error*)
+    ;;
 
 (* ** SSM2 Interpreter ** *)
 
+let rec ssm2_interpreter code stack environment dump : state = match code with
+  (*restore return point*)
+  | [] -> (match dump with
+          [] -> STATE(code, stack, environment, dump)
+        | (c, s, e)::dump_tl -> ssm2_interpreter c (List.append stack s) e dump_tl)
+
+  (*Basic types*)
+  | INT(n)::code_tl -> ssm2_interpreter code_tl (List.append [SVINT(n)] stack) environment dump
+  | BOOL(n)::code_tl -> ssm2_interpreter code_tl (List.append [SVBOOL(n)] stack) environment dump
+
+  (*POP: remove stack top *)
+  | POP::code_tl -> (match stack with
+                    [] -> raise SSM2_Interpreter_Error (*pop on an empty stack*)
+                    | hd::stack_tl -> ssm2_interpreter code_tl stack_tl environment dump )
+
+  (*COPY*)
+  | COPY::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error (*copy on an empty stack*)
+                      | hd::stack_tl -> ssm2_interpreter code_tl (List.append [hd] stack) environment dump)
+
+  (*ADD*)
+  | ADD::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error (*add on an empty stack*)
+                      | SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error (*we need at least two elements for add*)
+                                            | SVINT(z2)::stack_tl_tl ->
+                                              let sum_z = z1 + z2 in
+                                              ssm2_interpreter code_tl (List.append [SVINT(sum_z)] stack_tl_tl) environment dump
+                                            | _ -> raise SSM2_Interpreter_Error )
+                  | _ -> raise SSM2_Interpreter_Error)
+  (*INV*)
+  | INV::code_tl -> (match stack with
+                    [] -> raise SSM2_Interpreter_Error
+                    | SVINT(z1)::stack_tl ->
+                      let inv_z = z1 - z1 - z1 in
+                      ssm2_interpreter code_tl (List.append [SVINT(inv_z)] stack_tl) environment dump
+                    | _ -> raise SSM2_Interpreter_Error)
+
+  (*PROD*)
+
+  (*DIV*)
+
+  (*EQ*)
+
+  (*GTE*)
+
+  (*GT*)
+
+  (*AND*)
+
+  (*OR*)
+
+  (*NOT*)
+
+  (*JUMP*)
+
+  (*JUMPIFTRUE*)
+
+  (*VAR*)
+
+  (*FUN*)
+
+  (*RFUN*)
+
+  (*APPLY*)
+  | _ -> STATE(code, stack, environment, dump)
+;;
+
+
 (* ** SSM2 TESTS ** *)
 
-let rec print_ssm2 v = match v with
-   e::l -> Printf.printf e; Printf.printf " " ; print_ssm2 l
-  | _ -> Printf.printf "\n" ;;
+(* Não consigo fazer funcionar =(((((((((
+let rec print_ssm2 v : code =
+  let s = size v in
+  let eq = s == 1 in
+  match eq with
+  | true -> Printf.printf List.hd v
+  | false -> Printf.printf v[0] ; print_ssm2 List.tl v
+  ;;
+*)
 
 
 let ssm2_int = ssm2_compiler [] (Num 5) ;;
@@ -547,3 +623,4 @@ let ssm2_bool = ssm2_compiler [] (Bool true) ;;
 
 Printf.printf "Verificando o compilador de SSM2:\n" ;;
 Printf.printf "%d\n" (size ssm2_int) ;;
+(*print_ssm2 ssm2_int ;;*)
