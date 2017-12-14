@@ -249,7 +249,7 @@ let rec eval environment e : value = match e with
 	| _ -> raise InvalidEval
 ;;
 
-(* ** Tests Type Infer ** *)
+(******************** Tests Type Infer ** *)
 
 let t1 = Num(3) ;;
 let t2 = Bool(true) ;;
