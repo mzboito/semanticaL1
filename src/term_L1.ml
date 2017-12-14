@@ -1,7 +1,6 @@
 type variable = string
-(* Outros operadores binário e unários podem ser adicionados a linguagem *)
 
-type operator = Sum | Diff | Mult | Div | Equal | NotEqual | GreaterOrEqual | And | Or | Less | LessOrEqual | Greater 
+type operator = Sum | Diff | Mult | Div | Equal | NotEqual | GreaterOrEqual | And | Or | Less | LessOrEqual | Greater
 
 type tipo  = TyInt | TyBool | TyFn of tipo * tipo
 
@@ -21,7 +20,10 @@ type value = Vnum of int
            | Vrclos of variable * variable * expr * env
 and
      env = (variable * value) list
+and
+     envt = (variable * tipo) list
+and
+     envExp = (variable * expr) list
 
 exception Eval_Error of string
-
-(**********************************************************************************)
+;;

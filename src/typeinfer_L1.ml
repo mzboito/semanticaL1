@@ -2,98 +2,72 @@
 #use "utils.ml" ;;
 
 exception InvalidType ;;
-exception Variable_not_found ;; (* não tava definida, acho *)
 
 let rec typecheck environment exp : tipo = match exp with
-	(* If expression is a value *)
-	  Num(v)  -> TyInt
-	| Bool(v) -> TyBool
+  (* Values *)
+    Num(v)  -> TyInt
+  | Bool(b) -> TyBool
 
-	(* Binary operations *)
-	| Bop(op,exp1,exp2) ->
-		let ope1 = typecheck environment exp1 in
-		let ope2 = typecheck environment exp2 in
-		(match op, ope1, ope2 with
-			    Sum, TyInt, TyInt -> TyInt
-				| Diff, TyInt, TyInt -> TyInt
-				| Mult, TyInt, TyInt -> TyInt
-				| Div, TyInt, TyInt -> TyInt
-				| Equal, TyInt, TyInt -> TyBool
-				| Equal, TyBool, TyBool -> TyBool
-				| NotEqual, TyBool, TyBool -> TyBool
-				| NotEqual, TyInt, TyInt -> TyBool
-				| GreaterOrEqual, TyInt, TyInt -> TyBool
-				| And, TyBool, TyBool -> TyBool
-				| Or, TyBool, TyBool -> TyBool
-				| Less, TyInt, TyInt -> TyBool
-				| LessOrEqual, TyInt, TyInt -> TyBool
-				| Greater, TyInt, TyInt -> TyBool
-				| _ -> raise InvalidType
-			)
-		(* IF e1 then e2 else e3
-			e1: bool	e2: T	e3:T	if then else: T*)
-		| If(e1,e2,e3) ->
-			let tipoe1 = typecheck environment e1 in
-			let tipoe2 = typecheck environment e2 in
-			let tipoe3 = typecheck environment e3 in
-				if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
+  (* Binary operations *)
+  | Bop(op,exp1,exp2) ->
+    let ope1 = typecheck environment exp1 in
+    let ope2 = typecheck environment exp2 in
+    (match op, ope1, ope2 with
+          Sum, TyInt, TyInt -> TyInt
+        | Diff, TyInt, TyInt -> TyInt
+        | Mult, TyInt, TyInt -> TyInt
+        | Div, TyInt, TyInt -> TyInt
+        | Equal, TyBool, TyBool -> TyBool
+        | Equal, TyInt, TyInt -> TyBool
+        | NotEqual, TyBool, TyBool -> TyBool
+        | NotEqual, TyInt, TyInt -> TyBool
+        | GreaterOrEqual, TyInt, TyInt -> TyBool
+        | And, TyBool, TyBool -> TyBool
+        | Or, TyBool, TyBool -> TyBool
+        | Less, TyInt, TyInt -> TyBool
+        | LessOrEqual, TyInt, TyInt -> TyBool
+        | Greater, TyInt, TyInt -> TyBool
+        | _ -> raise InvalidType
+      )
 
-		|Fun(variable, t, exp) ->
-		let tipoExp =  typecheck environment exp in
-		let checkVar = lookupExpr variable environment in
-		let tipoVar = typecheck environment checkVar in
-		if tipoVar == t then TyFn(tipoVar,  tipoExp) else raise InvalidType 
-		
-       		 | Var(variable) -> typecheck environment (lookupExpr variable environment) 
+  (* Conditional *)
+  | If(e1,e2,e3) ->
+      let tipoe1 = typecheck environment e1 in
+      let tipoe2 = typecheck environment e2 in
+      let tipoe3 = typecheck environment e3 in
+          if tipoe1 == TyBool && tipoe2 == tipoe3 then tipoe2 else raise InvalidType
 
-	(*ADICIONAR O FUN AQUI *)
-		| App(exp1,exp2) ->
-		let appexp1 = typecheck environment exp1 in (* tem que ser t->t' *)
-		let appexp2 = typecheck environment exp2 in (* tem que ser t *)
-		(match appexp1 with
-			TyFn(tipo1,tipo2) -> if tipo1 == appexp2 then tipo2 else raise InvalidType
-			| _ -> raise InvalidType) 
-(*  se num env, e1 é t -> t'   e e2 é t  , e1 e2 é t'  TyFn of tipo * tipo  *)
-		 | Let(variable,t,exp1,exp2) ->
-		let tipovar = typecheck environment (lookupExpr variable environment) in
-		let tipoexp1 = typecheck environment exp1 in
-		let tipoexp2 = typecheck environment exp2 in
-		if (tipovar == t && tipovar = tipoexp1) then tipoexp2 else raise InvalidType
+   (* Function *)
+  | Fun(v, t, e) -> TyFn(t, (typecheck(updateT v t environment) e))
 
-(*
-	
+  (* Variable *)
+  | Var(v) -> lookupT v environment
 
-	(*ADICIONAR LET AQUI*)
- 
-*)
-	| _ -> raise InvalidType ;; (*so pra ir debugando sem ele reclamar de falta de match*)
+ (* Application *)
+  | App(e1,e2) ->
+    let exp1 = typecheck environment e1 in
+    let exp2 = typecheck environment e2 in
+    (match exp1 with
+      TyFn(t1,t2) -> (if t1 == exp2
+          then t2
+          else raise InvalidType)
+      |_ -> raise InvalidType)
 
+  (* Let *)
+  | Let(variable, t, e1, e2) ->
+    let x = typecheck environment e1 in
+    (if x == t (*if the expression e1 is right (of type t)*)
+        then typecheck (updateT variable t environment) e2 (*ten the output is of typecheck(e2)*)
+        else raise InvalidType)
 
-
-
-	(*ADICIONAR LET REC AQUI*)
-
-	(* OLD VERSION
-	Fn: variavel, tipo, expressao
-		num env onde a variavel e do tipo t, a expressao e do tipo t', entao
-		a funcao e do tipo t -> t'
-
-		Fun of variable * tipo * expr
-		*)
-
-	(*	| Fun(variable, t, exp) ->
-		let tipoExp =  typecheck environment exp in
-		(match tipoExp with
-			TyFn(t,  (typecheck environment (lookup variable environment)) )
-			| _ -> raise InvalidType
-
-		)*)
-
-
-	(* Let of variable * tipo * expr * expr  *)
-
-	(*	| Let (variable, t, exp1,exp2) ->
-		let tipoExp1 = typecheck environment exp1 in
-		let tipoExp2 = typecheck environment exp2 in
-
-		;; *)
+  (* Let Rec *)
+  | Lrec(func, (ty1, ty2), (var, ty3, e1), e2) ->
+    let ty4 = TyFn(ty1,ty2) in
+    let update1 = updateT var ty3 environment in
+    let update2 = updateT func ty4 update1 in
+    let ty5 = typecheck update2 e1 in (
+      if ty5 == ty2 && ty1 == ty3
+      then typecheck (updateT func ty4 environment) e2
+      else raise InvalidType
+    )
+;;

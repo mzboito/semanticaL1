@@ -1,67 +1,178 @@
 (* Libraries *)
 #use "utils.ml" ;;
 #use "term_L1.ml" ;;
-(*#use "bigstep_L1.ml" ;; tá de castigo por dar erro *)
+#use "bigstep_L1.ml"
 #use "typeinfer_L1.ml" ;;
 
 
-let t1 = TyInt;;
-let t2 = TyBool;;
-let t3 = TyFn(t1, t2);;
-let t4 = TyFn(t3,t2);;
-let t5 = TyFn(t2,t2);;
-let evalList = t1:: (t2:: (t3:: (t4:: (t5 :: [])))) ;;
-let output = List.map (fun x -> type2string(x)) evalList ;;
+let t1 = Num(3) ;;
+let t2 = Bool(true) ;;
+let t3 = Bop(Sum, t1, t1) ;;
+let t4 = Bop(Equal, t1, t1) ;;
+let t5 = Bop(Equal, t2, t2) ;;
+let t6 = Bop(Equal, t2, t1) ;; (* deve dar erro *)
+let t7 = Bop(NotEqual, t1, t1) ;;
+let t8 = Bop(GreaterOrEqual, t1, t1) ;;
+let t9 = Bop(And, t2, t2) ;;
+let t10 = Bop(Or, t2, t2) ;;
+let t11 = Bop(Less, t1, t1) ;;
+let t12 = Bop(LessOrEqual, t1, t1) ;;
+let t13 = Bop(Greater, t1, t1) ;;
+let t14 = Bop(Diff, t1, t1) ;;
+let t15 = Bop(Mult, t1, t1) ;;
+let t16 = Bop(Div, t1, t1) ;;
+let t17 = Bop(NotEqual, t2, t1) ;; (* erro *)
+let t18 = If(t2,t3,t15) ;; (*deve dar int*)
+let t19 = If(t2,t4,t5) ;; (*deve dar bool*)
+let t20 = If(t2,t3,t5) ;; (*deve dar erro*)
+let env = [] ;;
+let t21 = "variavelInt" ;;
+let currentEnv = updateT (t21) (TyInt) (env);;
+let t22 = Fun(t21,TyInt,t15);; (* int -> int *)
+let t23 = Fun(t21,TyInt,t5);; (* int -> bool *)
+let t24 = "variavelBool" ;;
+let currentEnv2 = updateT (t24) (TyBool) (env) ;;
+let t25 = App(t22,t1) ;; (* t22: int -> int   t1: int    e1e2: int *)
+let t27 = App(t23,t14) ;; (* t23:  int -> bool   e2: int    e1e2: bool , *)
+let t26 = App(t23,t7) ;; (* t23: int -> bool   e2: bool    e1e2: bool , erro *)
 
-let printOutput elem =
-    match elem with
-     _ -> Printf.printf "Result: %s\n" elem
-    in List.iter printOutput output ;;
+(* e1: T  vaar: T  e2: T', let é T' *)
+let t28 = Let(t24,TyBool, t19, t16) ;;
+let t29 = Let(t21,TyInt, t16, t19) ;;
+let t30 = Let(t21,TyInt, t19, t16) ;; (* deve dar erro *)
+let t31 = Lrec(t21,(TyInt,TyInt),(t21,TyInt,t15),t16);;
+let t32 = Lrec(t24,(TyBool,TyBool),(t24,TyBool,t5),t12);;
+let t33 = Lrec(t24,(TyBool,TyInt),(t24,TyBool,t5),t12);; (* deve dar erro *)
+
+(* Testes para let rec - ok *)
+(*Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv) (t31))) ;;
+print_newline();;
+Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t32))) ;;
+print_newline();;
+Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t33))) ;;
+*)
+
+(* Testes para let
+Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv2) (t28))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+Printf.printf "Verificando tipo let: Let(variavelInt,TyInt, Bop(Div, Num(3), Num(3)), If(Bool(true), Bop(Equal, Num(3), Num(3)),Bop(Equal, Bool(true), Bool(true))))  %s" (type2string (typecheck (currentEnv) (t29))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+Printf.printf "Verificando tipo let: Let( variavelInt,TyInt, If(Bool(true), Bop(Equal, Num(3), Num(3) ), Bop (Equal, Bool(true), Bool(true) ) ), Bop(Div, Num(3), Num(3))) %s" (type2string (typecheck (currentEnv) (t30))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+*)
+(* Testes para app - ok
+Printf.printf "Verificando tipo app: %s" (type2string (typecheck (currentEnv) (t25))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ) , Bop(Diff, Num(3), Num(3))) %s" (type2string (typecheck (currentEnv) (t27))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();;
+Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ), Bop(NotEqual, Num(3), Num(3)) ) %s" (type2string (typecheck (currentEnv) (t26))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+print_newline();; *)
 
 
+(* Testes para tipo Num, Bool, Bop - Ok
+Printf.printf "Verificando tipo num: %s" (type2string (typecheck [] t1)) ;;
+print_newline();;
+Printf.printf "Verificando tipo bool: %s" (type2string (typecheck [] t2)) ;;
+print_newline();;
+Printf.printf "Verificando tipo op Sum: %s" (type2string (typecheck [] t3)) ;;
+print_newline();;
+print_newline();;
+Printf.printf "Verificando tipo op Equal: %s" (type2string (typecheck [] t4)) ;;
+print_newline();;
+Printf.printf "Verificando tipo op Equal: %s" (type2string (typecheck [] t5)) ;;
+print_newline();;
+Printf.printf "Verificando tipo op Equal: %s" (type2string (typecheck [] t6)) ;;
+*)
 
-(*  TESTAR PROGRAMAS AQUI *)
+(* Testes para o if - ok
+print_newline();;
+Printf.printf "Verificando if: %s" (type2string (typecheck [] t18)) ;;
+print_newline();;
+Printf.printf "Verificando if: %s" (type2string (typecheck [] t19)) ;;
+print_newline();;
+Printf.printf "Verificando if: %s" (type2string (typecheck [] t20)) ;;
+print_newline();;
+*)
 
-(* TESTES PARA ENV *)
+(* Testes para o fun - ok
+Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t22)) ;; (* variavel t21 definida dentro do currentenv*)
+print_newline();;
+Printf.printf "Verificando fun: %s" (type2string (typecheck currentEnv t23)) ;;
+print_newline();;
+*)
+(* Testes para var - ok
 
-(*let umNum =  Vnum (7);;
-let umEnv : env = [] ;;
+Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;;
+print_newline();;
+Printf.printf "Verificando var: %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;;
+print_newline();;
+*)
 
-(* variaveis sao strings *)
-
-let up = update "umNum" umNum umEnv;;
-let search = lookup "umNum" umEnv;;*)
+(* Testes Big Step *)
 
 
-	(*  TmInt -> TyInt (* T-Int *)
-	| TmBool -> TyBool (* T-Bool *)
+(*let evalList = t1:: (t2:: (t3 :: [])) ;;
+let output = List.map (fun x -> (typecheck [] x)) evalList ;;
+let strings = List.map (fun t -> (type2string t)) output ;;*)
 
-	| TmOpSum(t1,t2) -> (* Pode isso????? *)
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) + typecheck(t2)) == TyInt else raise InvalidType (* T-Op+ *)
-	| TmOpDiff(t1,t2) ->
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) - typecheck(t2)) == TyInt else raise InvalidType (* T-Op- *)
-	| TmOpMult(t1,t2) ->
-	 	if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) * typecheck(t2)) == TyInt else raise InvalidType (* T-Op* *)
-	| TmOpDiv(t1,t2) ->
-	 	if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) / typecheck(t2)) == TyInt else raise InvalidType (* T-Op/ *)
-	| TmOpEqual(t1,t2) ->
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) == typecheck(t2)) == TyBool else raise InvalidType (* T-Op== *)
-	| TmOpLessEqual(t1,t2) ->
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) <= typecheck(t2)) == TyBool else raise InvalidType (* T-Op<= *)
-	| TmOpGreaterEqual(t1,t2) ->
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) >= typecheck(t2)) == TyBool else raise InvalidType (* T-Op>= *)
-	| TmOpLess(t1,t2) ->
-	    if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) < typecheck(t2)) == TyBool else raise InvalidType (* TOp< *)
-	| TmOpGreater(t1,t2) ->
-		if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) > typecheck(t2)) == TyBool else raise InvalidType (* TOp> *)
-	| TmOpNeg(t1,t2) ->
-	 	if(typecheck(t1) == TyInt && typecheck(t2) == TyInt) then (typecheck(t1) != typecheck(t2)) == TyBool else raise InvalidType (* TOp!= *)
-	| TmIf(t1,t2,t3) ->
-		if(typecheck(t1)) == TyBool && (typecheck(t2)) == (typecheck(t3)) then typecheck(t3) else raise InvalidType (* T-If *)
-	| TmVar(variable) -> lookup variable environment *)
+(* CONJUNTO DE TESTES *)
+let numTesting = Vnum(1);;
+let boolTesting = Vbool(true);;
 
-  (* isso retorna um valor, é só isso?? *)
-	(*|  T-Fun *)
-	(*|  T-App *)
-	(*|  T-Let *)
-	(*|  T-LetRec *)
+let varInt = "varTest";;
+let valueEnv =  update varInt numTesting [];;
+let varBool = "varTestBool";;
+let valueEnv2 =  update varBool boolTesting [];;
+
+let vclosTesting = Vclos(varInt,t22,valueEnv);;
+let vclosTesting = Vclos(varBool,t22,valueEnv2);;
+let vclosTesting = Vrclos(varBool,varBool,t4,valueEnv2);;
+
+let expBopE = Bop(Equal,Bool(true),Bool(false));;
+let expBopE2 = Bop(Equal,Bool(false),Bool(true));;
+let expBopSum = eval [] (Bop(Sum,Num(1),Num(2))) ;;
+let expBopEqual= eval [] (Bop(Equal,Bool(true),Bool(false))) ;;
+
+let ifexp = If(expBopE,Bool(true),Bool(false)) ;;
+let ifexpInt = If(expBopE,Bool(true),Num(3)) ;;
+
+let funTest = Fun(varInt,TyInt,Bop(Mult,Num(5),Num(4)));;
+let funTest2 = Fun(varBool,TyBool,Bop(Equal,Num(5),Num(4)));;
+
+let varTest = Var(varBool) ;;
+
+let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
+
+
+Printf.printf "Verificando big step - bop Sum:" ;;
+value2string (expBopSum)  ;;
+
+print_newline();;
+
+Printf.printf "Verificando big step - bop Equal: " ;;
+
+value2string (expBopEqual) ;;
+print_newline();;
+
+Printf.printf "Verificando big step - if: " ;;
+value2string (eval [] ifexp ) ;;
+print_newline();;
+
+Printf.printf "Verificando big step - if: " ;;
+value2string (eval [] ifexpInt )  ;;
+print_newline();;
+
+Printf.printf "Verificando big step - fun: " ;;
+value2string (eval [] funTest ) ;;
+print_newline();;
+Printf.printf "Verificando big step - fun: " ;;
+value2string (eval [] funTest2 )  ;;
+print_newline();;
+
+Printf.printf "Verificando big step - var: " ;;
+value2string (eval valueEnv2 varTest ) ;;
+print_newline();;
+
+Printf.printf "Verificando big step - app: ";;
+value2string (eval [] app )  ;;
+Printf.printf "\n\n\n";;
