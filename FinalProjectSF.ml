@@ -436,7 +436,6 @@ type instruction = INT of int
                  | PROD
                  | DIV
                  | EQ
-                 | NEQ
                  | GTE
                  | GT
                  | AND
@@ -483,7 +482,7 @@ let rec ssm2_compiler environment expr : code = match expr with
       | Mult -> List.append comp2 (List.append comp1 [PROD])
       | Div -> List.append comp2 (List.append comp1 [DIV])
       | Equal -> List.append comp2 (List.append comp1 [EQ])
-      | NotEqual -> List.append comp2 (List.append comp1 [NEQ])
+      | NotEqual -> List.append comp2 (List.append comp1 (List.append [EQ] [NOT]))
       | And -> List.append comp2 (List.append comp1 [AND])
       | Or -> List.append comp2 (List.append comp1 [OR])
       | Less -> let inv_comp2 = List.append [INV] comp2 in
@@ -508,8 +507,32 @@ let rec ssm2_compiler environment expr : code = match expr with
       let c_else = List.append [JUMP length_e2] comp_e2 in
       List.append (List.append comp_e1 c_if) c_else
 
+    (* Function *)
+    | Fun(v, t, e) -> [FUN(v, (ssm2_compiler environment e))]
 
-    | _ -> [] ;;(*raise SSM2_Compiler_Error;;*)
+    (* Variable *)
+    | Var(v) -> [VAR(v)]
+
+    (* Application *)
+    | App(e1, e2) ->
+      let comp_e1 = ssm2_compiler environment e1 in
+      let comp_e2 = ssm2_compiler environment e2 in
+      List.append comp_e2 (List.append comp_e1 [APPLY])
+
+    (* Let *)
+    | Let(variable, t, e1, e2) ->
+      let comp_e1 = ssm2_compiler environment e1 in
+      let comp_e2 = ssm2_compiler environment e2 in
+      List.append comp_e1 (List.append [FUN(variable, comp_e2)] [APPLY])
+
+    (* Let Rec *)
+    | Lrec(f, (t1, t2), (variable, t3, e1), e2) ->
+      let comp_e1 = ssm2_compiler environment e1 in
+      let comp_e2 = ssm2_compiler environment e2 in
+      List.append [RFUN(f, variable, comp_e1)] (List.append [FUN(f, comp_e2)] [APPLY])
+
+    | _ -> raise SSM2_Compiler_Error;;
+
 (* ** SSM2 Interpreter ** *)
 
 (* ** SSM2 TESTS ** *)
