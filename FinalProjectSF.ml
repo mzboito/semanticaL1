@@ -708,10 +708,14 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
                       | SVCLOS(env, var, c)::stack_tl ->
                         (match stack_tl with
                             [] -> raise SSM2_Interpreter_Error (*we need a value for apply*)
-                            | sv::stack_tl_tl -> ssm2_interpreter c [] (updateSSM2 var sv environment) (List.append [(code, stack_tl_tl, environment)] dump)
+                            | sv::stack_tl_tl -> ssm2_interpreter c [] (updateSSM2 var sv environment) (List.append [(code_tl, stack_tl_tl, environment)] dump)
                             )
-
-                      | SVRCLOS(env, f, var, code)::stack_tl -> raise SSM2_Interpreter_Error
+(*(APPLY::c, RCLOS(e1,f,x,c')::sv::s,e,d) > (c',[], (f, RCLOS(e1,f,x,c'))::(x,sv)::e',(c,s,e)::d)*)
+                      | SVRCLOS(env, f, var, c)::stack_tl ->
+                        (match stack_tl with
+                          [] -> raise SSM2_Interpreter_Error
+                          | sv::stack_tl_tl -> ssm2_interpreter c [] (updateSSM2 f (SVRCLOS(env,f,var,c)) (updateSSM2 var sv env)) (List.append [(code_tl, stack_tl_tl, environment)] dump)
+                          )
                       | _ -> raise SSM2_Interpreter_Error
                       )
 ;;
