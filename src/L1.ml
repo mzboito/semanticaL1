@@ -164,35 +164,34 @@ Printf.printf "Verificando big step - LetRec: Lrec(varBool, (TyInt,TyBool), (var
 value2string (eval [] letrec2)  ;;
 print_newline();;
 
-Printf.printf "Verificando big step - bop Sum:" ;;
+Printf.printf "Verificando big step - bop Sum: Bop(Sum,Num(1),Num(2))" ;;
 value2string (expBopSum)  ;;
 
 print_newline();;
 
-Printf.printf "Verificando big step - bop Equal: " ;;
-
+Printf.printf "Verificando big step - bop Equal: Bop(Equal,Bool(true),Bool(false)) " ;;
 value2string (expBopEqual) ;;
 print_newline();;
 
-Printf.printf "Verificando big step - if: " ;;
+Printf.printf "Verificando big step - if: If( Bop(Equal,Bool(true),Bool(false)), Bool(true), Bool(false)) " ;;
 value2string (eval [] ifexp ) ;;
 print_newline();;
 
-Printf.printf "Verificando big step - if: " ;;
+Printf.printf "Verificando big step - if: If( Bop(Equal,Bool(true),Bool(false)), Bool(true), Num(3)) " ;;
 value2string (eval [] ifexpInt )  ;;
 print_newline();;
 
-Printf.printf "Verificando big step - fun: " ;;
+Printf.printf "Verificando big step - fun: Fun( varInt, TyInt, Bop(Mult,Num(5),Num(4))) " ;;
 value2string (eval [] funTest ) ;;
 print_newline();;
-Printf.printf "Verificando big step - fun: " ;;
+Printf.printf "Verificando big step - fun: Fun( varBool, TyBool, Bop(Equal,Num(5),Num(4)))" ;;
 value2string (eval [] funTest2 )  ;;
 print_newline();;
 
-Printf.printf "Verificando big step - var: " ;;
+Printf.printf "Verificando big step - var: Var(varBool) " ;;
 value2string (eval valueEnv2 varTest ) ;;
 print_newline();;
 
-Printf.printf "Verificando big step - app: ";;
+Printf.printf "Verificando big step - app: App( Fun( varInt, TyInt, Bop(Mult,Num(5),Num(4))), Num(4)) ";;
 value2string (eval [] app )  ;;
 Printf.printf "\n\n\n";;
