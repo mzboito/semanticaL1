@@ -570,26 +570,93 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
   | INV::code_tl -> (match stack with
                     [] -> raise SSM2_Interpreter_Error
                     | SVINT(z1)::stack_tl ->
-                      let inv_z = z1 - z1 - z1 in
+                      let inv_z = z1 * (-1) in
                       ssm2_interpreter code_tl (List.append [SVINT(inv_z)] stack_tl) environment dump
                     | _ -> raise SSM2_Interpreter_Error)
 
   (*PROD*)
-
+  | PROD::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVINT(z2)::stack_tl_tl ->
+                                                let mul_z = z1 * z2 in
+                                                ssm2_interpreter code_tl (List.append [SVINT(mul_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*DIV*)
-
+  | DIV::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVINT(z2)::stack_tl_tl ->
+                                                if z2 == 0 then (raise SSM2_Interpreter_Error) else (
+                                                let div_z = z1 / z2 in
+                                                ssm2_interpreter code_tl (List.append [SVINT(div_z)] stack_tl_tl) environment dump)
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*EQ*)
-
+  | EQ::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVINT(z2)::stack_tl_tl ->
+                                                let eq_z = z1 == z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(eq_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      |SVBOOL(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVBOOL(z2)::stack_tl_tl ->
+                                                let eq_z = z1 == z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(eq_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*GTE*)
-
+  | GTE::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVINT(z2)::stack_tl_tl ->
+                                                let gte_z = z1 >= z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(gte_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*GT*)
-
+  | GT::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVINT(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVINT(z2)::stack_tl_tl ->
+                                                let gt_z = z1 >= z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(gt_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*AND*)
-
+  | AND::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVBOOL(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVBOOL(z2)::stack_tl_tl ->
+                                                let and_z = z1 && z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(and_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*OR*)
-
+  | OR::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVBOOL(z1)::stack_tl -> (match stack_tl with
+                                              [] -> raise SSM2_Interpreter_Error
+                                              | SVBOOL(z2)::stack_tl_tl ->
+                                                let and_z = z1 || z2 in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(and_z)] stack_tl_tl) environment dump
+                                              | _ -> raise SSM2_Compiler_Error)
+                      | _ -> raise SSM2_Interpreter_Error)
   (*NOT*)
-
+  | NOT::code_tl -> (match stack with
+                      [] -> raise SSM2_Interpreter_Error
+                      |SVBOOL(z1)::stack_tl -> let not_z = not(z1) in
+                                                ssm2_interpreter code_tl (List.append [SVBOOL(not_z)] stack_tl) environment dump
+                      | _ -> raise SSM2_Interpreter_Error)
   (*JUMP*)
 
   (*JUMPIFTRUE*)
