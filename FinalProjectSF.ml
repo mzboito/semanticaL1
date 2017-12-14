@@ -420,15 +420,11 @@ print_newline();;
 
 Printf.printf "Verificando big step - app: ";;
 value2string (eval [] app )  ;;
+Printf.printf "\n\n\n";;
 (* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
-
-
+(* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
+(* *** *** *** *** *** *** *** *** *** *** *** *** *** *** *** *)
 (* ** SSM2 STRUCTURE ** *)
-
-type storableValue = INT of int
-                   | BOOL of bool
-                   | CLOS of ssm2_env * variable * c
-                   | RCLOS of ssm2_env * variable * variable * c
 
 type instruction = INT of int
                  | BOOL of bool
@@ -444,21 +440,39 @@ type instruction = INT of int
                  | JUMPIFTRUE of int
                  | VAR of variable
                  | FUN of variable * code (*FUN(x,c)*)
-                 | RFUN of variable * variable * c (*RFUN(f,x,c)*)
+                 | RFUN of variable * variable * code (*RFUN(f,x,c)*)
                  | APPLY
-and
-  code = instruction list
-and
-  ssm2_env = (variable * storableValue) list
-and
-  stack = storableValue list
-and
-  dump = (code * stack * ssm2_env) list
-and
-  state = code * stack * ssm2_env * dump
+              and
+                 code = instruction list
 
-exception SSM2_Eval_Error of string ;;
+type storableValue = INT of int
+                  | BOOL of bool
+                  | CLOS of ssm2_env * variable * code
+                  | RCLOS of ssm2_env * variable * variable * code
+                  and
+                    ssm2_env = (variable * storableValue) list
+                  and
+                    stack = storableValue list
+                  and
+                    dump = (code * stack * ssm2_env) list
+
+type  state = STATE of code * stack * ssm2_env * dump
+
+exception SSM2_Eval_Error ;;
 
 (* ** SSM2 Interpreter ** *)
 
 (* ** SSM2 Compiler ** *)
+let rec ssm2_compiler environment exp : code = match exp with
+    (* Values *)
+      Num(v)  -> [INT(v)]
+    | Bool(b) -> [BOOL(b)]
+
+    (* Binary operations *)
+    | Bop(op,exp1,exp2) -> raise SSM2_Eval_Error
+
+    | _ -> raise SSM2_Eval_Error;;
+
+
+
+(* ** SSM2 TESTS ** *)
