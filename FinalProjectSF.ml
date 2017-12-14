@@ -477,6 +477,15 @@ let rec split_n number s_list =
                                       let (l1, l2) = split_n (number-1) tail in (head::l1,l2))
                                       ;;
 
+let rec updateSSM2 variable value environment : ssm2_env = match environment with
+    [] -> [(variable, value)]
+    |head::tail -> List.append [(variable, value)] environment ;;
+
+let rec lookupSSM2 variable environment : storableValue = match environment with
+    [] -> raise Variable_not_found
+    | (name, value)::tail ->
+      if(name == variable) then value else lookupSSM2 variable tail ;;
+
 (* ** SSM2 Compiler ** *)
 
 let rec ssm2_compiler environment expr : code = match expr with
@@ -683,9 +692,12 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
         else (ssm2_interpreter code_tl stack_tl environment dump) (*either way the stack top has to pop*)
       | _ -> raise SSM2_Interpreter_Error (*stack top is not a bool*)
       )
-  (*VAR*)
+
+  (*VAR*) (*finds the variable inside the environment*)
+  | VAR(n)::code_tl -> ssm2_interpreter code_tl (List.append [(lookupSSM2 n environment)] stack) environment dump
 
   (*FUN*)
+  | FUN(var, f_code)::code_tl -> ssm2_interpreter code_tl (List.append [SVCLOS(environment, var, f_code)] stack) environment dump
 
   (*RFUN*)
 
