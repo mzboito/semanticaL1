@@ -700,6 +700,7 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
   | FUN(var, f_code)::code_tl -> ssm2_interpreter code_tl (List.append [SVCLOS(environment, var, f_code)] stack) environment dump
 
   (*RFUN*)
+  | RFUN(f, var, f_code)::code_tl -> ssm2_interpreter code_tl (List.append [SVRCLOS(environment, f, var, f_code)] stack) environment dump
 
   (*APPLY*)
   | _ -> STATE(code, stack, environment, dump)
