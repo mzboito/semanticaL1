@@ -703,7 +703,17 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
   | RFUN(f, var, f_code)::code_tl -> ssm2_interpreter code_tl (List.append [SVRCLOS(environment, f, var, f_code)] stack) environment dump
 
   (*APPLY*)
-  | _ -> STATE(code, stack, environment, dump)
+  | APPLY::code_tl -> (match stack with (*(APPLY:c,CLOS(e1,x,c')::sv::s,e,d) > (c',[],(x,sv)::e',(c,s,e)::d)*)
+                      [] -> raise SSM2_Interpreter_Error
+                      | SVCLOS(env, var, c)::stack_tl ->
+                        (match stack_tl with
+                            [] -> raise SSM2_Interpreter_Error (*we need a value for apply*)
+                            | sv::stack_tl_tl -> ssm2_interpreter c [] (updateSSM2 var sv environment) (List.append [(code, stack_tl_tl, environment)] dump)
+                            )
+
+                      | SVRCLOS(env, f, var, code)::stack_tl -> raise SSM2_Interpreter_Error
+                      | _ -> raise SSM2_Interpreter_Error
+                      )
 ;;
 
 
