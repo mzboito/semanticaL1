@@ -290,12 +290,13 @@ let t31 = Lrec(t21,(TyInt,TyInt),(t21,TyInt,t15),t16);;
 let t32 = Lrec(t24,(TyBool,TyBool),(t24,TyBool,t5),t12);;
 let t33 = Lrec(t24,(TyBool,TyInt),(t24,TyBool,t5),t12);; (* deve dar erro *)
 
-(* Testes para let rec - ok
-Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv) (t31))) ;;
+(* Testes para let rec - ok *)
+(*Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv) (t31))) ;;
 print_newline();;
 Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t32))) ;;
 print_newline();;
-Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t33))) ;; *)
+Printf.printf "Verificando tipo let rec: %s" (type2string (typecheck (currentEnv2) (t33))) ;;
+*)
 
 (* Testes para let
 Printf.printf "Verificando tipo let: %s" (type2string (typecheck (currentEnv2) (t28))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
@@ -311,8 +312,8 @@ print_newline();;
 Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ) , Bop(Diff, Num(3), Num(3))) %s" (type2string (typecheck (currentEnv) (t27))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
 Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ), Bop(NotEqual, Num(3), Num(3)) ) %s" (type2string (typecheck (currentEnv) (t26))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
-print_newline();;
-*)
+print_newline();; *)
+
 
 (* Testes para tipo Num, Bool, Bop - Ok
 Printf.printf "Verificando tipo num: %s" (type2string (typecheck [] t1)) ;;
@@ -356,9 +357,9 @@ print_newline();;
 (* Testes Big Step *)
 
 
-let evalList = t1:: (t2:: (t3 :: [])) ;;
+(*let evalList = t1:: (t2:: (t3 :: [])) ;;
 let output = List.map (fun x -> (typecheck [] x)) evalList ;;
-let strings = List.map (fun t -> (type2string t)) output ;;
+let strings = List.map (fun t -> (type2string t)) output ;;*)
 
 (* CONJUNTO DE TESTES *)
 let numTesting = Vnum(1);;
@@ -432,9 +433,14 @@ type instruction = INT of int
                  | COPY
                  | ADD
                  | INV
+                 | PROD
+                 | DIV
                  | EQ
+                 | NEQ
+                 | GTE
                  | GT
                  | AND
+                 | OR
                  | NOT
                  | JUMP of int
                  | JUMPIFTRUE of int
@@ -458,21 +464,51 @@ type storableValue = INT of int
 
 type  state = STATE of code * stack * ssm2_env * dump
 
-exception SSM2_Eval_Error ;;
-
-(* ** SSM2 Interpreter ** *)
+exception SSM2_Compiler_Error ;;
 
 (* ** SSM2 Compiler ** *)
-let rec ssm2_compiler environment exp : code = match exp with
+
+let rec ssm2_compiler environment expr : code = match expr with
     (* Values *)
       Num(v)  -> [INT(v)]
     | Bool(b) -> [BOOL(b)]
 
     (* Binary operations *)
-    | Bop(op,exp1,exp2) -> raise SSM2_Eval_Error
+    | Bop(op,exp1,exp2) ->
+      let comp1 = ssm2_compiler environment exp1 in
+      let comp2 = ssm2_compiler environment exp2 in
+      (match op with
+        Sum -> List.append comp2 (List.append comp1 [ADD])
+      | Diff -> List.append comp2 (List.append (List.append [INV] comp1) [ADD]) (*subtraction = sum with one of them inv*)
+      | Mult -> List.append comp2 (List.append comp1 [PROD])
+      | Div -> List.append comp2 (List.append comp1 [DIV])
+      | Equal -> List.append comp2 (List.append comp1 [EQ])
+      | NotEqual -> List.append comp2 (List.append comp1 [NEQ])
+      | GreaterOrEqual -> List.append comp2 (List.append comp1 [GTE])
+      | And -> List.append comp2 (List.append comp1 [AND])
+      | Or -> List.append comp2 (List.append comp1 [OR])
+      | Less -> let inv_comp2 = List.append [INV] comp2 in
+                let inv_comp1 = List.append [INV] comp1 in
+                List.append inv_comp2 (List.append inv_comp1 [GT])
+      | LessOrEqual -> let inv_comp2 = List.append [INV] comp2 in
+                       let inv_comp1 = List.append [INV] comp1 in
+                       List.append inv_comp2 (List.append inv_comp1 [GTE]) (* x < y == -x > -y*)
+      | Greater -> List.append comp2 (List.append comp1 [GT])
+      (*| _ -> raise SSM2_Compiler_Error*)
+      )
+    | _ -> raise SSM2_Compiler_Error;;
 
-    | _ -> raise SSM2_Eval_Error;;
-
-
+(* ** SSM2 Interpreter ** *)
 
 (* ** SSM2 TESTS ** *)
+
+let rec print_ssm2 v = match v with
+   e::l -> Printf.printf e; Printf.printf " " ; print_ssm2 l
+  | _ -> Printf.printf "\n" ;;
+
+
+let ssm2_int = ssm2_compiler [] (Num 5) ;;
+let ssm2_bool = ssm2_compiler [] (Bool true) ;;
+
+Printf.printf "Verificando o compilador de SSM2:\n" ;;
+print_ssm2 ssm2_int
