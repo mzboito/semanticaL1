@@ -473,7 +473,7 @@ let rec ssm2_compiler environment expr : code = match expr with
       Num(v)  -> [INT(v)]
     | Bool(b) -> [BOOL(b)]
 
-    (* Binary operations *)
+
     | Bop(op,exp1,exp2) ->
       let comp1 = ssm2_compiler environment exp1 in
       let comp2 = ssm2_compiler environment exp2 in
@@ -484,7 +484,6 @@ let rec ssm2_compiler environment expr : code = match expr with
       | Div -> List.append comp2 (List.append comp1 [DIV])
       | Equal -> List.append comp2 (List.append comp1 [EQ])
       | NotEqual -> List.append comp2 (List.append comp1 [NEQ])
-      | GreaterOrEqual -> List.append comp2 (List.append comp1 [GTE])
       | And -> List.append comp2 (List.append comp1 [AND])
       | Or -> List.append comp2 (List.append comp1 [OR])
       | Less -> let inv_comp2 = List.append [INV] comp2 in
@@ -494,10 +493,23 @@ let rec ssm2_compiler environment expr : code = match expr with
                        let inv_comp1 = List.append [INV] comp1 in
                        List.append inv_comp2 (List.append inv_comp1 [GTE]) (* x < y == -x > -y*)
       | Greater -> List.append comp2 (List.append comp1 [GT])
+      | GreaterOrEqual -> List.append comp2 (List.append comp1 [GTE])
       (*| _ -> raise SSM2_Compiler_Error*)
       )
-    | _ -> raise SSM2_Compiler_Error;;
 
+    (* Conditional *)
+    | If(e1, e2, e3) -> (*if = comp_e1 + (jumpiftrue (n3+1)) + compe3 + (jump n2) + compye2 *)
+      let comp_e1 = ssm2_compiler environment e1 in
+      let comp_e2 = ssm2_compiler environment e2 in
+      let comp_e3 = ssm2_compiler environment e3 in
+      let length_e2 = size comp_e2 in
+      let length_e3 = (size comp_e3) + 1 in
+      let c_if = List.append [JUMPIFTRUE length_e3] comp_e3 in
+      let c_else = List.append [JUMP length_e2] comp_e2 in
+      List.append (List.append comp_e1 c_if) c_else
+
+
+    | _ -> [] ;;(*raise SSM2_Compiler_Error;;*)
 (* ** SSM2 Interpreter ** *)
 
 (* ** SSM2 TESTS ** *)
@@ -511,4 +523,4 @@ let ssm2_int = ssm2_compiler [] (Num 5) ;;
 let ssm2_bool = ssm2_compiler [] (Bool true) ;;
 
 Printf.printf "Verificando o compilador de SSM2:\n" ;;
-print_ssm2 ssm2_int
+Printf.printf "%d\n" (size ssm2_int) ;;
