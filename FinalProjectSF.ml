@@ -389,6 +389,26 @@ let varTest = Var(varBool) ;;
 
 let app = App(funTest,Num(4));; (* ela nao funcionou com o bop equal *)
 
+let letest = Let(varInt,TyInt,Bop(Sum,Num(2),Num(2)),Bop(Sum,Num(1),Num(2))) ;;
+let letest2 = Let(varBool,TyInt,Bop(Sum,Num(2),Num(2)),Bop(Equal,Bool(true),Bool(false))) ;;
+
+let letrec = Lrec(varInt, (TyInt,TyInt), (varInt,TyInt,ifexpInt), Bop(Sum,Num(1),Num(2))) ;;
+let letrec2 = Lrec(varBool, (TyInt,TyBool), (varInt,TyInt,ifexpInt), ifexp) ;;
+
+Printf.printf "Verificando big step - Let: Let(varInt, TyInt, Bop(Sum,Num(2),Num(2)), Bop(Sum,Num(1),Num(2))) " ;;
+value2string (eval [] letest)  ;;
+print_newline();;
+
+Printf.printf "Verificando big step - Let: Let(varInt, TyInt, Bop(Sum,Num(2),Num(2)), Bop(Sum,Num(1),Num(2))) " ;;
+value2string (eval [] letest2)  ;;
+print_newline();;
+
+Printf.printf "Verificando big step - LetRec: Lrec(varInt, (TyInt,TyInt), (varInt,TyInt,ifexpInt), Bop(Sum,Num(1),Num(2)))  " ;;
+value2string (eval [] letrec)  ;;
+print_newline();;
+Printf.printf "Verificando big step - LetRec: Lrec(varBool, (TyInt,TyBool), (varInt,TyInt,ifexpInt), If( Bop(Equal,Bool(true),Bool(false) ), Bool(true), Bool(false)) ) " ;;
+value2string (eval [] letrec2)  ;;
+print_newline();;
 
 Printf.printf "Verificando big step - bop Sum:" ;;
 value2string (expBopSum)  ;;
