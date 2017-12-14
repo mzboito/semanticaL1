@@ -465,6 +465,18 @@ type  state = STATE of code * stack * ssm2_env * dump
 
 exception SSM2_Compiler_Error ;;
 exception SSM2_Interpreter_Error ;;
+
+(* ** SSM2 UTILS ** *)
+
+exception Split_Error ;;
+
+let rec split_n number s_list =
+  if number == 0 then ([], s_list) else( match s_list with
+                                    [] -> raise Split_Error
+                                    | head::tail ->
+                                      let (l1, l2) = split_n (number-1) tail in (head::l1,l2))
+                                      ;;
+
 (* ** SSM2 Compiler ** *)
 
 let rec ssm2_compiler environment expr : code = match expr with
@@ -658,9 +670,19 @@ let rec ssm2_interpreter code stack environment dump : state = match code with
                                                 ssm2_interpreter code_tl (List.append [SVBOOL(not_z)] stack_tl) environment dump
                       | _ -> raise SSM2_Interpreter_Error)
   (*JUMP*)
+  |JUMP(n)::code_tl ->
+    let(l1,new_code) = split_n n code in (*creates the new code jumping n instrucitons*)
+    ssm2_interpreter new_code stack environment dump
 
   (*JUMPIFTRUE*)
-
+  | JUMPIFTRUE(n)::code_tl -> (match stack with
+      [] -> raise SSM2_Interpreter_Error
+      | SVBOOL(z1)::stack_tl ->
+        let (l1, new_code) = split_n n code in
+        if z1 then (ssm2_interpreter new_code stack_tl environment dump)
+        else (ssm2_interpreter code_tl stack_tl environment dump) (*either way the stack top has to pop*)
+      | _ -> raise SSM2_Interpreter_Error (*stack top is not a bool*)
+      )
   (*VAR*)
 
   (*FUN*)
