@@ -46,67 +46,102 @@ let t33 = Lrec(t24,(TyBool,TyInt),(t24,TyBool,t5),t12);; (* deve dar erro *)
 
 
 (* Testes para let rec - ok *)
-(*Printf.printf "Verificando tipo let rec: Lrec(variavelInt, (TyInt,TyInt),(variavelInt,TyInt, Bop(Mult, Num(3) , Num(3) ) ), Bop(Div, Num(3), Num(3)) )   -----> %s" (type2string (typecheck (currentEnv) (t31))) ;;
+Printf.printf "Verificando tipo let rec: Lrec(variavelInt, (TyInt,TyInt),(variavelInt,TyInt, Bop(Mult, Num(3) , Num(3) ) ), Bop(Div, Num(3), Num(3)) )   -----> %s" (type2string (typecheck (currentEnv) (t31))) ;;
+
 print_newline();;
+print_newline();;
+
 Printf.printf "Verificando tipo let rec: Lrec(variavelBool, (TyBool,TyBool), (variavelBool,TyBool, Bop(Equal, Bool(true), Bool(true)) ), Bop(LessOrEqual, Num(3), Num(3)) )   -----> %s" (type2string (typecheck (currentEnv2) (t32))) ;;
-print_newline();;
-Printf.printf "Verificando tipo let rec: Lrec(variavelBool, (TyBool,TyInt), (variavelBool,TyBool, Bop(Equal, Bool(true), Bool(true))   -----> %s" (type2string (typecheck (currentEnv2) (t33))) ;;
-*)
 
-(* Testes para let
-Printf.printf "Verificando tipo let: Let(variavelBool, TyBool, If(Bool(true), Bop(Equal, Num(3), Num(3)), Bop(Equal, Bool(true), Bool(true)) ), Bop(Div, Num(3), Num(3)) )    -----> %s" (type2string (typecheck (currentEnv2) (t28))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
-Printf.printf "Verificando tipo let: Let(variavelInt,TyInt, Bop(Div, Num(3), Num(3)), If(Bool(true), Bop(Equal, Num(3), Num(3)),Bop(Equal, Bool(true), Bool(true))))        -----> %s" (type2string (typecheck (currentEnv) (t29))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
-Printf.printf "Verificando tipo let: Let( variavelInt,TyInt, If(Bool(true), Bop(Equal, Num(3), Num(3) ), Bop (Equal, Bool(true), Bool(true) ) ), Bop(Div, Num(3), Num(3)))        -----> %s" (type2string (typecheck (currentEnv) (t30))) ;; (* currentEnv2 porque a variável usada em fun foi definida nesse ambiente! *)
+
+(* Testes para let *)
+Printf.printf "Verificando tipo let: Let(variavelBool, TyBool, If(Bool(true), Bop(Equal, Num(3), Num(3)), Bop(Equal, Bool(true), Bool(true)) ), Bop(Div, Num(3), Num(3)) )    -----> %s" (type2string (typecheck (currentEnv2) (t28))) ;; 
+
 print_newline();;
-*)
-(* Testes para app - ok
-Printf.printf "Verificando tipo app: App( Fun(variavelInt, TyInt, Bop(Mult, Num(3), Num(3)) ), Num(3))  -----> %s" (type2string (typecheck (currentEnv) (t25))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
 print_newline();;
-Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ) , Bop(Diff, Num(3), Num(3)))        -----> %s" (type2string (typecheck (currentEnv) (t27))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
+
+Printf.printf "Verificando tipo let: Let(variavelInt,TyInt, Bop(Div, Num(3), Num(3)), If(Bool(true), Bop(Equal, Num(3), Num(3)),Bop(Equal, Bool(true), Bool(true))))        -----> %s" (type2string (typecheck (currentEnv) (t29))) ;; 
+
 print_newline();;
-Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ), Bop(NotEqual, Num(3), Num(3)) )        -----> %s" (type2string (typecheck (currentEnv) (t26))) ;; (* currentEnv porque a variável usada em fun foi definida nesse ambiente! *)
-print_newline();; *)
+print_newline();;
+
+(* Testes para app - ok *)
+Printf.printf "Verificando tipo app: App( Fun(variavelInt, TyInt, Bop(Mult, Num(3), Num(3)) ), Num(3))  -----> %s" (type2string (typecheck (currentEnv) (t25))) ;; 
+
+print_newline();;
+print_newline();;
+
+Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ) , Bop(Diff, Num(3), Num(3)))        -----> %s" (type2string (typecheck (currentEnv) (t27))) ;; 
+
+print_newline();;
+print_newline();; 
 
 
-(* Testes para tipo Num, Bool, Bop - Ok
+(* Testes para tipo Num, Bool, Bop - Ok *)
 Printf.printf "Verificando tipo num: Num(3)        -----> %s" (type2string (typecheck [] t1)) ;;
+
 print_newline();;
+print_newline();;
+
 Printf.printf "Verificando tipo bool: Bool(true)        -----> %s" (type2string (typecheck [] t2)) ;;
+
 print_newline();;
+print_newline();;
+
 Printf.printf "Verificando tipo op Sum: Bop(Sum, Num(3), Num(3))        -----> %s" (type2string (typecheck [] t3)) ;;
 print_newline();;
 print_newline();;
+
 Printf.printf "Verificando tipo op Equal: Bop(Equal, Num(3), Num(3))        -----> %s" (type2string (typecheck [] t4)) ;;
 print_newline();;
+print_newline();;
+
 Printf.printf "Verificando tipo op Equal: Bop(Equal, Bool(true), Bool(true))       -----> %s" (type2string (typecheck [] t5)) ;;
 print_newline();;
-Printf.printf "Verificando tipo op Equal: Bop(Equal, Bool(true), Num(3)) - Teste não deve passar  -----> %s" (type2string (typecheck [] t6)) ;;
-*)
 
-(* Testes para o if - ok
+
+(* Testes para o if - ok *)
 print_newline();;
 Printf.printf "Verificando if: If( Bool(true) , Bop(Sum, Num(3), Num(3)), Bop(Mult, Num(3), Num(3)) )  -----> %s" (type2string (typecheck [] t18)) ;;
+
+print_newline();;
+print_newline();;
+
+(* Testes para o fun - ok *)
+Printf.printf "Verificando fun: Fun(variavelInt, TyInt, Bop(Mult, Num(3), Num(3)) )  -----> %s" (type2string (typecheck currentEnv t22)) ;; 
+print_newline();;
+print_newline();;
+Printf.printf "Verificando fun: Fun(variavelInt, TyInt,  Bop(Equal, Bool(true), Bool(true)) )   -----> %s" (type2string (typecheck currentEnv t23)) ;;
+print_newline();;
+print_newline();;
+(* Testes para var - ok *)
+
+Printf.printf "Verificando var: variavelInt  -----> %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;;
+print_newline();;
+print_newline();;
+Printf.printf "Verificando var: variavelBool  -----> %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;;
+print_newline();;
+print_newline();;
+
+(***************** Testes que devem falhar *)
+
+(*
+Printf.printf "Verificando tipo let rec: Lrec(variavelBool, (TyBool,TyInt), (variavelBool,TyBool, Bop(Equal, Bool(true), Bool(true))   -----> %s" (type2string (typecheck (currentEnv2) (t33))) ;;
+print_newline();;
+Printf.printf "Verificando tipo op Equal: Bop(Equal, Bool(true), Num(3)) - Teste não deve passar  -----> %s" (type2string (typecheck [] t6)) ;;
 print_newline();;
 Printf.printf "Verificando if: If( Bool(true) , Bop(Equal, Num(3), Num(3)) , Bop(Equal, Bool(true), Bool(true)))  -----> %s" (type2string (typecheck [] t19)) ;;
 print_newline();;
 Printf.printf "Verificando if: If( Bool(true) , Bop(Sum, Num(3), Num(3)), Bop(Equal, Bool(true), Bool(true)) )  -----> %s" (type2string (typecheck [] t20)) ;;
 print_newline();;
+Printf.printf "Verificando tipo app: App( Fun(variavelInt,TyInt, Bop(Equal,  Bool(true),  Bool(true)) ), Bop(NotEqual, Num(3), Num(3)) )        -----> %s" (type2string (typecheck (currentEnv) (t26))) ;; 
+print_newline();;
+Printf.printf "Verificando tipo let: Let( variavelInt,TyInt, If(Bool(true), Bop(Equal, Num(3), Num(3) ), Bop (Equal, Bool(true), Bool(true) ) ), Bop(Div, Num(3), Num(3)))        -----> %s" (type2string (typecheck (currentEnv) (t30))) ;; 
+print_newline();;
 *)
 
-(* Testes para o fun - ok
-Printf.printf "Verificando fun: Fun(variavelInt, TyInt, Bop(Mult, Num(3), Num(3)) )  -----> %s" (type2string (typecheck currentEnv t22)) ;; (* variavel t21 definida dentro do currentenv*)
-print_newline();;
-Printf.printf "Verificando fun: Fun(variavelInt, TyInt,  Bop(Equal, Bool(true), Bool(true)) )   -----> %s" (type2string (typecheck currentEnv t23)) ;;
-print_newline();;
-*)
-(* Testes para var - ok
-Printf.printf "Verificando var: variavelInt  -----> %s" (type2string (typecheck (currentEnv) (Var(t21))) ) ;;
-print_newline();;
-Printf.printf "Verificando var: variavelBool  -----> %s" (type2string (typecheck (currentEnv2) (Var(t24))) ) ;;
-print_newline();;
-*)
 
 (* Testes Big Step *)
 
